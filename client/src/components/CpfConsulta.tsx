@@ -117,57 +117,53 @@ export default function CpfConsulta() {
   return (
     <>
       <section
-        className="py-12 sm:py-16 bg-gradient-to-br from-[#7B2D8E] via-[#6a2579] to-[#5a1f66]"
+        className="cpf-consulta-topo bg-white border-b border-gray-100 shadow-sm py-8 sm:py-10"
         data-testid="cpf-consulta-section"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-              Consulte seus pontos Livelo
+        <div className="max-w-2xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+              Consulte seus pontos agora
             </h2>
-            <p className="text-white/80 text-sm sm:text-base">
-              Digite seu CPF para verificar seu saldo de pontos
+            <p className="text-gray-500 text-sm">
+              Digite seu CPF e veja se possui saldo disponivel
             </p>
           </div>
 
           {(phase === "form" || phase === "loading") && (
-            <div className="max-w-md mx-auto" data-testid="cpf-form">
-              <Card className="p-6 bg-white/10 backdrop-blur-sm border-white/20">
-                <label className="block text-white text-sm font-medium mb-2">
-                  CPF
-                </label>
-                <div className="flex gap-3">
-                  <Input
-                    type="text"
-                    value={cpf}
-                    onChange={handleCpfChange}
-                    onKeyDown={handleKeyDown}
-                    placeholder="000.000.000-00"
-                    maxLength={14}
-                    disabled={isLoading}
-                    className="flex-1 bg-white/90 text-gray-900 placeholder-gray-400 border-white/30 focus-visible:ring-[#FF6600]/50"
-                    data-testid="input-cpf"
-                  />
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={!validateCpf(cpf) || isLoading}
-                    className="bg-[#FF6600] border-[#FF6600] text-white"
-                    data-testid="button-consultar"
-                  >
-                    <Search className="w-4 h-4 mr-1.5" />
-                    Consultar Pontos
-                  </Button>
-                </div>
-                <p className="text-white/60 text-xs mt-3">
-                  Seus dados estao protegidos conforme a LGPD
-                </p>
-              </Card>
+            <div className="max-w-lg mx-auto" data-testid="cpf-form">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Input
+                  type="text"
+                  value={cpf}
+                  onChange={handleCpfChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder="000.000.000-00"
+                  maxLength={14}
+                  disabled={isLoading}
+                  className="flex-1 min-h-10 text-gray-900 border-gray-300 focus-visible:ring-[#7B2D8E]/30"
+                  data-testid="input-cpf"
+                />
+                <Button
+                  size="lg"
+                  onClick={handleSubmit}
+                  disabled={!validateCpf(cpf) || isLoading}
+                  className="bg-[#FF6600] border-[#FF6600] text-white font-semibold"
+                  data-testid="button-consultar"
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Consultar Pontos
+                </Button>
+              </div>
+              <p className="text-gray-400 text-xs mt-3 text-center">
+                Seus dados estao protegidos conforme a LGPD
+              </p>
             </div>
           )}
 
           {phase === "result" && result && (
             <div className="max-w-md mx-auto" data-testid="cpf-result">
-              <Card className="p-6 bg-white border-0 shadow-xl">
+              <Card className="p-6 border shadow-lg">
                 {result.hasPoints ? (
                   <div className="text-center">
                     <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />

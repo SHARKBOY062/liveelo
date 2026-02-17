@@ -1,15 +1,14 @@
 import PromoBar from "@/components/PromoBar";
 import Header from "@/components/Header";
 import SecurityBanner from "@/components/SecurityBanner";
+import CpfConsulta from "@/components/CpfConsulta";
 import HeroBanner from "@/components/HeroBanner";
 import TravelSearch from "@/components/TravelSearch";
-import PointsSection from "@/components/PointsSection";
 import ProductsCarousel from "@/components/ProductsCarousel";
 import DestinationsSection from "@/components/DestinationsSection";
 import Partners from "@/components/Partners";
 import ClubLivelo from "@/components/ClubLivelo";
 import AppDownload from "@/components/AppDownload";
-import CpfConsulta from "@/components/CpfConsulta";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -17,13 +16,10 @@ export default function Home() {
     <div className="min-h-screen bg-white" data-testid="home-page">
       <PromoBar />
       <Header />
+      <CpfConsulta />
       <SecurityBanner />
       <HeroBanner />
       <TravelSearch />
-      <div className="mt-8">
-        <PointsSection />
-      </div>
-      <CpfConsulta />
       <ProductsCarousel />
       <DestinationsSection />
       <Partners />
