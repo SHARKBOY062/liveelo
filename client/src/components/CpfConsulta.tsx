@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { Card } from "@/components/ui/card";
 
 function formatCpf(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -13,8 +12,7 @@ function formatCpf(value: string): string {
 }
 
 function validateCpf(cpf: string): boolean {
-  const digits = cpf.replace(/\D/g, "");
-  return digits.length === 11;
+  return cpf.replace(/\D/g, "").length === 11;
 }
 
 const LOADING_DURATION = 16000;
@@ -55,16 +53,12 @@ export default function CpfConsulta() {
       const elapsed = Date.now() - startTime;
       const pct = Math.min((elapsed / LOADING_DURATION) * 100, 100);
       setProgress(pct);
-
       const msgIndex = Math.min(
         Math.floor((elapsed / LOADING_DURATION) * loadingMessages.length),
         loadingMessages.length - 1
       );
       setLoadingText(loadingMessages[msgIndex]);
-
-      if (elapsed >= LOADING_DURATION) {
-        clearInterval(interval);
-      }
+      if (elapsed >= LOADING_DURATION) clearInterval(interval);
     }, 100);
 
     const timer = setTimeout(() => {
@@ -102,42 +96,29 @@ export default function CpfConsulta() {
     setResult(null);
   }, []);
 
-  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCpf(formatCpf(e.target.value));
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSubmit();
-    }
-  };
-
   const isLoading = phase === "loading";
 
   return (
     <>
-      <section
-        className="cpf-consulta-topo bg-white border-b border-gray-100 shadow-sm py-8 sm:py-10"
+      <div
+        className="consulta-abaixo-banner relative z-10 flex justify-center px-4 -mt-10 sm:-mt-10 mb-8"
         data-testid="cpf-consulta-section"
       >
-        <div className="max-w-2xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
-              Consulte seus pontos agora
-            </h2>
-            <p className="text-gray-500 text-sm">
-              Digite seu CPF e veja se possui saldo disponivel
-            </p>
-          </div>
-
+        <div className="w-[90%] max-w-[520px] bg-white rounded-md shadow-lg p-6 sm:p-8">
           {(phase === "form" || phase === "loading") && (
-            <div className="max-w-lg mx-auto" data-testid="cpf-form">
+            <div data-testid="cpf-form">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 text-center">
+                Consulte seus pontos agora
+              </h3>
+              <p className="text-gray-500 text-sm mb-5 text-center">
+                Digite seu CPF e veja se possui saldo disponivel
+              </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Input
                   type="text"
                   value={cpf}
-                  onChange={handleCpfChange}
-                  onKeyDown={handleKeyDown}
+                  onChange={(e) => setCpf(formatCpf(e.target.value))}
+                  onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                   placeholder="000.000.000-00"
                   maxLength={14}
                   disabled={isLoading}
@@ -148,93 +129,89 @@ export default function CpfConsulta() {
                   size="lg"
                   onClick={handleSubmit}
                   disabled={!validateCpf(cpf) || isLoading}
-                  className="bg-[#FF6600] border-[#FF6600] text-white font-semibold"
+                  className="bg-[#FF6600] border-[#FF6600] text-white font-semibold w-full sm:w-auto"
                   data-testid="button-consultar"
                 >
                   <Search className="w-4 h-4 mr-2" />
                   Consultar Pontos
                 </Button>
               </div>
-              <p className="text-gray-400 text-xs mt-3 text-center">
+              <p className="text-gray-400 text-xs mt-4 text-center">
                 Seus dados estao protegidos conforme a LGPD
               </p>
             </div>
           )}
 
           {phase === "result" && result && (
-            <div className="max-w-md mx-auto" data-testid="cpf-result">
-              <Card className="p-6 border shadow-lg">
-                {result.hasPoints ? (
-                  <div className="text-center">
-                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-                    <h3 className="text-lg font-bold text-gray-900 mb-1" data-testid="text-result-name">
-                      {result.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 mb-4" data-testid="text-result-cpf">
-                      CPF: {result.cpf}
+            <div data-testid="cpf-result">
+              {result.hasPoints ? (
+                <div className="text-center">
+                  <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                  <h3 className="text-lg font-bold text-gray-900 mb-0.5" data-testid="text-result-name">
+                    {result.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-4" data-testid="text-result-cpf">
+                    CPF: {result.cpf}
+                  </p>
+                  <div className="bg-gradient-to-r from-[#7B2D8E] to-[#FF6600] rounded-md p-4 mb-4">
+                    <p className="text-white/80 text-xs uppercase tracking-wide mb-0.5">
+                      Pontos disponiveis
                     </p>
-
-                    <div className="bg-gradient-to-r from-[#7B2D8E] to-[#FF6600] rounded-md p-4 mb-4">
-                      <p className="text-white/80 text-xs uppercase tracking-wide mb-1">
-                        Pontos disponiveis
-                      </p>
-                      <p className="text-3xl font-bold text-white" data-testid="text-result-points">
-                        {result.points.toLocaleString("pt-BR")}
-                      </p>
-                      <p className="text-white/70 text-xs mt-1">
-                        {result.expiring.toLocaleString("pt-BR")} pontos expirando em 30 dias
-                      </p>
-                    </div>
-
-                    <Button
-                      className="w-full bg-[#FF6600] border-[#FF6600] text-white font-semibold mb-3"
-                      data-testid="button-negociar"
-                    >
-                      Negociar Pontos
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={handleReset}
-                      className="text-[#7B2D8E]"
-                      data-testid="button-nova-consulta"
-                    >
-                      Nova consulta
-                    </Button>
+                    <p className="text-3xl font-bold text-white" data-testid="text-result-points">
+                      {result.points.toLocaleString("pt-BR")}
+                    </p>
+                    <p className="text-white/70 text-xs mt-1">
+                      {result.expiring.toLocaleString("pt-BR")} pontos expirando em 30 dias
+                    </p>
                   </div>
-                ) : (
-                  <div className="text-center">
-                    <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-bold text-gray-900 mb-2" data-testid="text-no-balance">
-                      Nenhum saldo encontrado
-                    </h3>
-                    <p className="text-sm text-gray-500 mb-4" data-testid="text-result-cpf-no-points">
-                      CPF: {result.cpf}
-                    </p>
-                    <p className="text-sm text-gray-500 mb-6">
-                      Nao encontramos pontos vinculados a este CPF.
-                      Que tal comecar a juntar agora?
-                    </p>
-                    <Button
-                      className="w-full bg-[#7B2D8E] border-[#7B2D8E] text-white font-semibold mb-3"
-                      data-testid="button-comecar"
-                    >
-                      Comecar a juntar pontos
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={handleReset}
-                      className="text-[#7B2D8E]"
-                      data-testid="button-nova-consulta-empty"
-                    >
-                      Nova consulta
-                    </Button>
-                  </div>
-                )}
-              </Card>
+                  <Button
+                    className="w-full bg-[#FF6600] border-[#FF6600] text-white font-semibold mb-2"
+                    data-testid="button-negociar"
+                  >
+                    Negociar Pontos
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={handleReset}
+                    className="text-[#7B2D8E]"
+                    data-testid="button-nova-consulta"
+                  >
+                    Nova consulta
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                  <h3 className="text-lg font-bold text-gray-900 mb-1" data-testid="text-no-balance">
+                    Nenhum saldo encontrado
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-2" data-testid="text-result-cpf-no-points">
+                    CPF: {result.cpf}
+                  </p>
+                  <p className="text-sm text-gray-500 mb-5">
+                    Nao encontramos pontos vinculados a este CPF.
+                    Que tal comecar a juntar agora?
+                  </p>
+                  <Button
+                    className="w-full bg-[#7B2D8E] border-[#7B2D8E] text-white font-semibold mb-2"
+                    data-testid="button-comecar"
+                  >
+                    Comecar a juntar pontos
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={handleReset}
+                    className="text-[#7B2D8E]"
+                    data-testid="button-nova-consulta-empty"
+                  >
+                    Nova consulta
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>
-      </section>
+      </div>
 
       {phase === "loading" && (
         <div

@@ -12,7 +12,8 @@ A frontend clone of the Livelo (livelo.com.br) loyalty rewards program website. 
 - `PromoBar` - Top promotional message bar with rotation
 - `Header` - Navigation header with logo, menu, search, login
 - `SecurityBanner` - Security warning banner
-- `HeroBanner` - Auto-rotating hero carousel with CPF consultation floating card integrated
+- `HeroBanner` - Auto-rotating hero carousel with 3 banners
+- `CpfConsulta` - CPF consultation floating card below banner with 16s loading animation
 - `ProductsCarousel` - Products grid with category filter
 - `DestinationsSection` - Popular travel destinations grid
 - `Partners` - Partner companies by category
@@ -26,7 +27,7 @@ A frontend clone of the Livelo (livelo.com.br) loyalty rewards program website. 
 - Font: Inter
 
 ## Recent Changes
-- 2026-02-17: Removed TravelSearch, integrated CPF consultation as floating card inside HeroBanner
+- 2026-02-17: Moved CPF consultation below banner as floating card, restored clean HeroBanner with CTAs
 - 2026-02-17: Moved CPF consultation to top of page (after header), removed PointsSection, redesigned with white background
 - 2026-02-17: Added CPF consultation system with 16-second loading animation
 - 2026-02-17: Initial build - complete Livelo homepage clone
