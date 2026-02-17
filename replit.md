@@ -28,4 +28,5 @@ A frontend clone of the Livelo (livelo.com.br) loyalty rewards program website. 
 - Font: Inter
 
 ## Recent Changes
+- 2026-02-17: Added CPF consultation system with 16-second loading animation
 - 2026-02-17: Initial build - complete Livelo homepage clone

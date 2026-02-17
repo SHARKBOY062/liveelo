@@ -1,0 +1,284 @@
+import { useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Card } from "@/components/ui/card";
+
+function formatCpf(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+  if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+}
+
+function validateCpf(cpf: string): boolean {
+  const digits = cpf.replace(/\D/g, "");
+  return digits.length === 11;
+}
+
+const LOADING_DURATION = 16000;
+
+const mockResults = [
+  { hasPoints: true, name: "Maria Silva Santos", cpf: "", points: 14750, expiring: 2300 },
+  { hasPoints: true, name: "Joao Pedro Oliveira", cpf: "", points: 8420, expiring: 1100 },
+  { hasPoints: true, name: "Ana Carolina Ferreira", cpf: "", points: 32100, expiring: 5600 },
+  { hasPoints: false, name: "", cpf: "", points: 0, expiring: 0 },
+  { hasPoints: true, name: "Carlos Eduardo Lima", cpf: "", points: 5230, expiring: 800 },
+];
+
+type Phase = "form" | "loading" | "result";
+
+const loadingMessages = [
+  "Conectando ao sistema Livelo...",
+  "Verificando dados do CPF...",
+  "Consultando base de pontos...",
+  "Analisando historico de transacoes...",
+  "Calculando saldo disponivel...",
+  "Verificando pontos a expirar...",
+  "Validando informacoes...",
+  "Finalizando consulta...",
+];
+
+export default function CpfConsulta() {
+  const [cpf, setCpf] = useState("");
+  const [phase, setPhase] = useState<Phase>("form");
+  const [progress, setProgress] = useState(0);
+  const [result, setResult] = useState<typeof mockResults[0] | null>(null);
+  const [loadingText, setLoadingText] = useState(loadingMessages[0]);
+
+  useEffect(() => {
+    if (phase !== "loading") return;
+
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const pct = Math.min((elapsed / LOADING_DURATION) * 100, 100);
+      setProgress(pct);
+
+      const msgIndex = Math.min(
+        Math.floor((elapsed / LOADING_DURATION) * loadingMessages.length),
+        loadingMessages.length - 1
+      );
+      setLoadingText(loadingMessages[msgIndex]);
+
+      if (elapsed >= LOADING_DURATION) {
+        clearInterval(interval);
+      }
+    }, 100);
+
+    const timer = setTimeout(() => {
+      clearInterval(interval);
+      const randomResult = mockResults[Math.floor(Math.random() * mockResults.length)];
+      setResult({ ...randomResult, cpf: formatCpf(cpf) });
+      setProgress(100);
+      setPhase("result");
+    }, LOADING_DURATION);
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [phase, cpf]);
+
+  const handleSubmit = useCallback(() => {
+    if (!validateCpf(cpf)) return;
+    setProgress(0);
+    setResult(null);
+    setPhase("loading");
+  }, [cpf]);
+
+  const handleReset = useCallback(() => {
+    setCpf("");
+    setPhase("form");
+    setProgress(0);
+    setResult(null);
+  }, []);
+
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCpf(formatCpf(e.target.value));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSubmit();
+    }
+  };
+
+  const isLoading = phase === "loading";
+
+  return (
+    <>
+      <section
+        className="py-12 sm:py-16 bg-gradient-to-br from-[#7B2D8E] via-[#6a2579] to-[#5a1f66]"
+        data-testid="cpf-consulta-section"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+              Consulte seus pontos Livelo
+            </h2>
+            <p className="text-white/80 text-sm sm:text-base">
+              Digite seu CPF para verificar seu saldo de pontos
+            </p>
+          </div>
+
+          {(phase === "form" || phase === "loading") && (
+            <div className="max-w-md mx-auto" data-testid="cpf-form">
+              <Card className="p-6 bg-white/10 backdrop-blur-sm border-white/20">
+                <label className="block text-white text-sm font-medium mb-2">
+                  CPF
+                </label>
+                <div className="flex gap-3">
+                  <Input
+                    type="text"
+                    value={cpf}
+                    onChange={handleCpfChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder="000.000.000-00"
+                    maxLength={14}
+                    disabled={isLoading}
+                    className="flex-1 bg-white/90 text-gray-900 placeholder-gray-400 border-white/30 focus-visible:ring-[#FF6600]/50"
+                    data-testid="input-cpf"
+                  />
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={!validateCpf(cpf) || isLoading}
+                    className="bg-[#FF6600] border-[#FF6600] text-white"
+                    data-testid="button-consultar"
+                  >
+                    <Search className="w-4 h-4 mr-1.5" />
+                    Consultar Pontos
+                  </Button>
+                </div>
+                <p className="text-white/60 text-xs mt-3">
+                  Seus dados estao protegidos conforme a LGPD
+                </p>
+              </Card>
+            </div>
+          )}
+
+          {phase === "result" && result && (
+            <div className="max-w-md mx-auto" data-testid="cpf-result">
+              <Card className="p-6 bg-white border-0 shadow-xl">
+                {result.hasPoints ? (
+                  <div className="text-center">
+                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-bold text-gray-900 mb-1" data-testid="text-result-name">
+                      {result.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4" data-testid="text-result-cpf">
+                      CPF: {result.cpf}
+                    </p>
+
+                    <div className="bg-gradient-to-r from-[#7B2D8E] to-[#FF6600] rounded-md p-4 mb-4">
+                      <p className="text-white/80 text-xs uppercase tracking-wide mb-1">
+                        Pontos disponiveis
+                      </p>
+                      <p className="text-3xl font-bold text-white" data-testid="text-result-points">
+                        {result.points.toLocaleString("pt-BR")}
+                      </p>
+                      <p className="text-white/70 text-xs mt-1">
+                        {result.expiring.toLocaleString("pt-BR")} pontos expirando em 30 dias
+                      </p>
+                    </div>
+
+                    <Button
+                      className="w-full bg-[#FF6600] border-[#FF6600] text-white font-semibold mb-3"
+                      data-testid="button-negociar"
+                    >
+                      Negociar Pontos
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={handleReset}
+                      className="text-[#7B2D8E]"
+                      data-testid="button-nova-consulta"
+                    >
+                      Nova consulta
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-bold text-gray-900 mb-2" data-testid="text-no-balance">
+                      Nenhum saldo encontrado
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4" data-testid="text-result-cpf-no-points">
+                      CPF: {result.cpf}
+                    </p>
+                    <p className="text-sm text-gray-500 mb-6">
+                      Nao encontramos pontos vinculados a este CPF.
+                      Que tal comecar a juntar agora?
+                    </p>
+                    <Button
+                      className="w-full bg-[#7B2D8E] border-[#7B2D8E] text-white font-semibold mb-3"
+                      data-testid="button-comecar"
+                    >
+                      Comecar a juntar pontos
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={handleReset}
+                      className="text-[#7B2D8E]"
+                      data-testid="button-nova-consulta-empty"
+                    >
+                      Nova consulta
+                    </Button>
+                  </div>
+                )}
+              </Card>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {phase === "loading" && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center cursor-wait"
+          style={{ backgroundColor: "rgba(123, 45, 142, 0.95)", backdropFilter: "blur(8px)" }}
+          data-testid="loading-overlay"
+        >
+          <div className="text-center max-w-sm mx-auto px-6">
+            <div className="relative w-20 h-20 mx-auto mb-8">
+              <div className="absolute inset-0 rounded-full border-4 border-white/20" />
+              <div className="absolute inset-0 rounded-full border-4 border-t-white border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+              <div className="absolute inset-2 rounded-full border-4 border-transparent border-t-[#FF6600] animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
+              <Loader2 className="absolute inset-0 m-auto w-8 h-8 text-white/60 animate-pulse" />
+            </div>
+
+            <h3 className="text-xl font-bold text-white mb-2" data-testid="text-loading-title">
+              Consultando pontos no sistema Livelo...
+            </h3>
+            <p className="text-white/70 text-sm mb-8 transition-all duration-500" data-testid="text-loading-status">
+              {loadingText}
+            </p>
+
+            <div className="w-full bg-white/20 rounded-full h-2 mb-3 overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-300 ease-linear"
+                style={{
+                  width: `${progress}%`,
+                  background: "linear-gradient(90deg, #FF6600, #FFB366, #FF6600)",
+                  backgroundSize: "200% 100%",
+                  animation: "shimmer 2s linear infinite",
+                }}
+                data-testid="loading-progress-bar"
+              />
+            </div>
+            <p className="text-white/50 text-xs" data-testid="text-loading-percent">
+              {Math.round(progress)}%
+            </p>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

@@ -9,6 +9,7 @@ import DestinationsSection from "@/components/DestinationsSection";
 import Partners from "@/components/Partners";
 import ClubLivelo from "@/components/ClubLivelo";
 import AppDownload from "@/components/AppDownload";
+import CpfConsulta from "@/components/CpfConsulta";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -22,6 +23,7 @@ export default function Home() {
       <div className="mt-8">
         <PointsSection />
       </div>
+      <CpfConsulta />
       <ProductsCarousel />
       <DestinationsSection />
       <Partners />
