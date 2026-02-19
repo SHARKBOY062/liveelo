@@ -112,7 +112,7 @@ export default function CpfConsulta() {
           <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10" />
           {(phase === "form" || phase === "loading") && (
             <div data-testid="cpf-form" className="relative z-10">
-              <img src="/images/livelo-logo.jpg" alt="Livelo" className="h-8 w-auto mx-auto mb-4 brightness-200 contrast-0 invert" data-testid="img-cpf-logo" />
+              <img src="/images/livelo-logo.jpg" alt="Livelo" className="h-10 w-auto mx-auto mb-4 rounded-sm" data-testid="img-cpf-logo" />
               <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 text-center">
                 Consulte seus pontos agora
               </h3>
