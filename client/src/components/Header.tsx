@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, User, Menu, X, ChevronDown, ShoppingCart, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -13,6 +13,21 @@ const navItems = [
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [primeiroNome, setPrimeiroNome] = useState("");
+
+  useEffect(() => {
+    const checkNome = () => {
+      const nome = localStorage.getItem("nomeUsuario");
+      setPrimeiroNome(nome ? nome.split(" ")[0] : "");
+    };
+    checkNome();
+    window.addEventListener("storage", checkNome);
+    const interval = setInterval(checkNome, 1000);
+    return () => {
+      window.removeEventListener("storage", checkNome);
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <header className="bg-white sticky top-0 z-40 border-b border-gray-100" data-testid="header">
@@ -70,14 +85,23 @@ export default function Header() {
             >
               <ShoppingCart className="w-5 h-5" />
             </button>
-            <Button
-              variant="outline"
-              className="ml-2 border-[#7B2D8E] text-[#7B2D8E] hover:bg-[#7B2D8E] hover:text-white text-sm font-semibold no-default-hover-elevate"
-              data-testid="login-button"
-            >
-              <User className="w-4 h-4 mr-1.5" />
-              Entrar
-            </Button>
+            {primeiroNome ? (
+              <span
+                className="ml-2 text-sm font-medium text-[#EC008C] whitespace-nowrap"
+                data-testid="text-saudacao"
+              >
+                Ola, {primeiroNome}
+              </span>
+            ) : (
+              <Button
+                variant="outline"
+                className="ml-2 border-[#7B2D8E] text-[#7B2D8E] hover:bg-[#7B2D8E] hover:text-white text-sm font-semibold no-default-hover-elevate"
+                data-testid="login-button"
+              >
+                <User className="w-4 h-4 mr-1.5" />
+                Entrar
+              </Button>
+            )}
           </div>
         </div>
 
