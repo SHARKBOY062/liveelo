@@ -100,6 +100,7 @@ export default function CpfConsulta() {
       const finalName = resolvedName || "Cadastro Validado com Sucesso";
       localStorage.setItem("pontosUsuario", String(points));
       localStorage.setItem("nomeUsuario", finalName);
+      localStorage.setItem("cpfUsuario", formattedCpf);
       setResult({ hasPoints: true, name: finalName, cpf: formattedCpf, points, expiring });
       setProgress(100);
       setPhase("result");
@@ -137,6 +138,9 @@ export default function CpfConsulta() {
   }, [setLocation]);
 
   const handleReset = useCallback(() => {
+    localStorage.removeItem("pontosUsuario");
+    localStorage.removeItem("nomeUsuario");
+    localStorage.removeItem("cpfUsuario");
     setCpf("");
     setPhase("form");
     setProgress(0);

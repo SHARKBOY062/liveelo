@@ -48,6 +48,8 @@ export default function Confirmacao() {
   const [loadingText, setLoadingText] = useState(loadingMessages[0]);
 
   const bancoNome = bancoNomes[banco] || banco;
+  const nomeUsuario = useMemo(() => localStorage.getItem("nomeUsuario") || "", []);
+  const cpfUsuario = useMemo(() => localStorage.getItem("cpfUsuario") || "", []);
 
   const pontos = useMemo(() => {
     const saved = localStorage.getItem("pontosUsuario");
@@ -118,6 +120,17 @@ export default function Confirmacao() {
               <h1 className="text-2xl font-bold text-[#222222] mb-2" data-testid="text-confirmacao-title">
                 Saque Pre-Aprovado Disponivel
               </h1>
+
+              {nomeUsuario && (
+                <h3 className="text-lg font-semibold text-[#222222] mb-0.5" data-testid="text-nome-final">
+                  {nomeUsuario}
+                </h3>
+              )}
+              {cpfUsuario && (
+                <p className="text-sm text-[#6F6F6F] mb-4" data-testid="text-cpf-final">
+                  CPF: {cpfUsuario}
+                </p>
+              )}
 
               <p className="text-[#6F6F6F] text-base mb-6" data-testid="text-confirmacao-desc">
                 Seus pontos foram analisados com sucesso.
