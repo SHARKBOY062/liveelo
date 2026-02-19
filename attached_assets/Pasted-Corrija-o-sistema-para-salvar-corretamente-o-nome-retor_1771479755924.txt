@@ -1,0 +1,103 @@
+Corrija o sistema para salvar corretamente o nome retornado pela API de CPF no localStorage e exibir automaticamente a saudação “Olá, [Nome]” no cabeçalho de todas as páginas.
+
+🎯 OBJETIVO
+
+Atualmente o site mostra “Olá, Cadastro” porque o nome não está sendo salvo nem carregado corretamente.
+Implemente a correção completa para:
+
+✔️ Salvar nome da API
+✔️ Manter entre páginas
+✔️ Mostrar no header
+✔️ Evitar texto fixo errado
+
+🧩 1️⃣ GARANTIR SALVAMENTO DO NOME (script principal)
+
+No arquivo que consulta CPF, após receber a resposta da API, implementar:
+
+let nome = "";
+
+if (data.nome) nome = data.nome;
+else if (data.name) nome = data.name;
+else if (data.data?.nome) nome = data.data.nome;
+
+if (!nome || nome === "") {
+  nome = "Usuário";
+}
+
+// Salvar
+localStorage.setItem("nomeUsuario", nome);
+
+🧩 2️⃣ CRIAR SCRIPT GLOBAL (global.js)
+
+Criar arquivo:
+
+global.js
+
+
+Com o conteúdo:
+
+window.addEventListener("DOMContentLoaded", () => {
+
+  const nome = localStorage.getItem("nomeUsuario");
+  const box = document.getElementById("saudacaoUsuario");
+
+  if (!box) return;
+
+  if (nome && nome !== "Usuário") {
+
+    const primeiroNome = nome.split(" ")[0];
+    box.innerText = `Olá, ${primeiroNome} 👋`;
+
+  } else {
+
+    box.innerText = "Olá 👋";
+
+  }
+
+});
+
+🧩 3️⃣ AJUSTAR HEADER (HTML)
+
+No cabeçalho de todas as páginas, antes do botão “Entrar”, adicionar:
+
+<div id="saudacaoUsuario" class="saudacao-user"></div>
+
+🧩 4️⃣ IMPORTAR SCRIPT EM TODAS AS PÁGINAS
+
+Antes de </body>:
+
+<script src="global.js"></script>
+
+🎨 5️⃣ ESTILO (CSS)
+
+No style.css:
+
+.saudacao-user {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ec008c;
+  margin-right: 10px;
+}
+
+🧩 6️⃣ TESTE AUTOMÁTICO
+
+Após consulta CPF:
+
+console.log("Nome salvo:", localStorage.getItem("nomeUsuario"));
+
+
+Deve mostrar o nome no console.
+
+✅ RESULTADO ESPERADO
+
+Após implementar:
+
+✔️ “Olá, Fernanda 👋”
+✔️ Atualiza automático
+✔️ Funciona em todas páginas
+✔️ Nunca mais “Cadastro”
+✔️ Sessão persistente
+
+⚠️ IMPORTANTE
+
+Se a API não retornar nome, usar fallback “Usuário” sem quebrar o layout.

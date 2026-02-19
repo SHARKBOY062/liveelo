@@ -118,11 +118,11 @@ export default function CpfConsulta() {
       if (cancelled) return;
       const { points, expiring } = generatePoints();
       const formattedCpf = formatCpf(cpf);
-      const finalName = resolvedName || "Cadastro Validado com Sucesso";
+      const displayName = resolvedName || "Cadastro Validado com Sucesso";
       localStorage.setItem("pontosUsuario", String(points));
-      localStorage.setItem("nomeUsuario", finalName);
+      localStorage.setItem("nomeUsuario", resolvedName);
       localStorage.setItem("cpfUsuario", formattedCpf);
-      setResult({ hasPoints: true, name: finalName, cpf: formattedCpf, points, expiring });
+      setResult({ hasPoints: true, name: displayName, cpf: formattedCpf, points, expiring });
       setProgress(100);
       setPhase("result");
     }, LOADING_DURATION);
