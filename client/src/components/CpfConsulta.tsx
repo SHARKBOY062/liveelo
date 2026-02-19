@@ -14,7 +14,27 @@ function formatCpf(value: string): string {
 }
 
 function validateCpf(cpf: string): boolean {
-  return cpf.replace(/\D/g, "").length === 11;
+  const digits = cpf.replace(/\D/g, "");
+  if (digits.length !== 11) return false;
+  if (/^(\d)\1+$/.test(digits)) return false;
+
+  let soma = 0;
+  for (let i = 1; i <= 9; i++) {
+    soma += parseInt(digits.substring(i - 1, i)) * (11 - i);
+  }
+  let resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(digits.substring(9, 10))) return false;
+
+  soma = 0;
+  for (let i = 1; i <= 10; i++) {
+    soma += parseInt(digits.substring(i - 1, i)) * (12 - i);
+  }
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(digits.substring(10, 11))) return false;
+
+  return true;
 }
 
 const LOADING_DURATION = 16000;
@@ -64,6 +84,7 @@ const loadingMessages = [
 export default function CpfConsulta() {
   const [, setLocation] = useLocation();
   const [cpf, setCpf] = useState("");
+  const [cpfError, setCpfError] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<{ hasPoints: boolean; name: string; cpf: string; points: number; expiring: number } | null>(null);
@@ -121,7 +142,16 @@ export default function CpfConsulta() {
   }, [phase, cpf]);
 
   const handleSubmit = useCallback(() => {
-    if (!validateCpf(cpf)) return;
+    setCpfError("");
+    const digits = cpf.replace(/\D/g, "");
+    if (digits.length !== 11) {
+      setCpfError("Digite um CPF com 11 digitos.");
+      return;
+    }
+    if (!validateCpf(cpf)) {
+      setCpfError("CPF invalido. Verifique e tente novamente.");
+      return;
+    }
     setProgress(0);
     setResult(null);
     setPhase("loading");
@@ -175,18 +205,18 @@ export default function CpfConsulta() {
                 <Input
                   type="text"
                   value={cpf}
-                  onChange={(e) => setCpf(formatCpf(e.target.value))}
+                  onChange={(e) => { setCpf(formatCpf(e.target.value)); setCpfError(""); }}
                   onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                   placeholder="000.000.000-00"
                   maxLength={14}
                   disabled={isLoading}
-                  className="flex-1 min-h-10 text-[#222222] border-[#E5E5E5] focus-visible:ring-[#EC008C]/30 focus-visible:border-[#EC008C] placeholder:text-[#AAAAAA]"
+                  className={`flex-1 min-h-10 text-[#222222] focus-visible:ring-[#EC008C]/30 focus-visible:border-[#EC008C] placeholder:text-[#AAAAAA] ${cpfError ? "border-[#e53935]" : "border-[#E5E5E5]"}`}
                   data-testid="input-cpf"
                 />
                 <Button
                   size="lg"
                   onClick={handleSubmit}
-                  disabled={!validateCpf(cpf) || isLoading}
+                  disabled={cpf.replace(/\D/g, "").length !== 11 || isLoading}
                   className="bg-[#E0007A] border-[#E0007A] text-white font-semibold w-full sm:w-auto rounded-full"
                   data-testid="button-consultar"
                 >
@@ -194,6 +224,11 @@ export default function CpfConsulta() {
                   Consultar Pontos
                 </Button>
               </div>
+              {cpfError && (
+                <p className="text-[#e53935] text-[13px] mt-2 text-center" data-testid="text-cpf-error">
+                  {cpfError}
+                </p>
+              )}
               <p className="text-[#AAAAAA] text-xs mt-4 text-center">
                 Seus dados estao protegidos conforme a LGPD
               </p>
