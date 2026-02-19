@@ -29,8 +29,9 @@ export default function Banco() {
   const savedNome = localStorage.getItem("nomeUsuario") || "";
   const savedCpf = localStorage.getItem("cpfUsuario") || "";
 
-  const [nome] = useState(savedNome);
+  const [nome, setNome] = useState(savedNome);
   const [cpf] = useState(savedCpf);
+  const [nomeError, setNomeError] = useState("");
   const [agencia, setAgencia] = useState("");
   const [conta, setConta] = useState("");
   const [pix, setPix] = useState("");
@@ -48,13 +49,20 @@ export default function Banco() {
   }, []);
 
   const handleEnviar = useCallback(() => {
+    const trimmed = nome.trim();
+    if (trimmed.length < 5 || !trimmed.includes(" ")) {
+      setNomeError("Digite seu nome completo (nome e sobrenome).");
+      return;
+    }
+    setNomeError("");
     if (!pix.trim()) return;
+    localStorage.setItem("nomeUsuario", trimmed);
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       setLocation(`/confirmacao?tipo=${tipo}&banco=${bancoSelecionado}`);
     }, 3000);
-  }, [pix, tipo, bancoSelecionado, setLocation]);
+  }, [nome, pix, tipo, bancoSelecionado, setLocation]);
 
   const bancoNome = bancos.find(b => b.id === bancoSelecionado)?.nome || "";
 
@@ -131,10 +139,15 @@ export default function Banco() {
                   <input
                     type="text"
                     value={nome}
-                    readOnly
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] bg-[#F6F6F6] text-sm text-[#222] cursor-not-allowed"
+                    onChange={(e) => { setNome(e.target.value); setNomeError(""); }}
+                    placeholder="Digite seu nome completo"
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-[#EC008C] bg-white text-sm text-[#222] focus:outline-none focus:ring-2 focus:ring-[#EC008C]/30 focus:border-[#EC008C] transition-colors"
                     data-testid="input-nome"
                   />
+                  {nomeError && (
+                    <p className="text-xs text-red-500 mt-1" data-testid="text-nome-error">{nomeError}</p>
+                  )}
                 </div>
 
                 <div>
@@ -187,7 +200,7 @@ export default function Banco() {
 
                 <Button
                   onClick={handleEnviar}
-                  disabled={!pix.trim()}
+                  disabled={!pix.trim() || !nome.trim()}
                   className="w-full bg-[#E0007A] border-[#E0007A] text-white font-semibold rounded-full mt-2 disabled:opacity-50"
                   data-testid="button-enviar"
                 >
