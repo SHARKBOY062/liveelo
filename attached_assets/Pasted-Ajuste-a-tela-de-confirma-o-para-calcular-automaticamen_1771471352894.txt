@@ -1,0 +1,123 @@
+Ajuste a tela de confirmação para calcular automaticamente um valor estimado com base em 10% dos pontos do usuário.
+
+🎯 OBJETIVO
+
+Na tela final, exibir:
+
+Mensagem de saque pré-aprovado (visual)
+
+Quantidade de pontos do usuário
+
+Conversão automática de 10%
+
+Valor diferente para cada pessoa
+
+Botão para continuar
+
+🧩 1️⃣ ALTERAR TEXTO DA TELA
+
+Substituir o conteúdo atual por:
+
+Título:
+
+Saque Pré-Aprovado Disponível ✅
+
+Texto:
+
+Seus pontos foram analisados com sucesso.
+
+Parte do seu saldo pode ser convertida em valor financeiro.
+
+💰 2️⃣ ÁREA DE VALOR
+
+Adicionar no HTML:
+
+<div class="box-valor">
+
+  <p>Seus pontos:</p>
+  <h3 id="totalPontos">0</h3>
+
+  <p>Valor disponível para saque (10%):</p>
+  <h2 id="valorEstimado">R$ 0,00</h2>
+
+</div>
+
+⚙️ 3️⃣ LÓGICA DE CÁLCULO (JS)
+
+No script.js, adicionar:
+
+// Exemplo: pega pontos salvos antes (ou gera se não existir)
+let pontos = localStorage.getItem("pontosUsuario");
+
+// Se não tiver salvo, gera aleatório
+if (!pontos) {
+  pontos = Math.floor(Math.random() * (150000 - 20000 + 1)) + 20000;
+  localStorage.setItem("pontosUsuario", pontos);
+}
+
+const percentual = 0.10;
+
+// Calcula valor
+const valor = pontos * percentual;
+
+// Mostra na tela
+document.getElementById("totalPontos").innerText =
+  pontos.toLocaleString("pt-BR");
+
+document.getElementById("valorEstimado").innerText =
+  "R$ " + valor.toFixed(2).replace(".", ",");
+
+🔘 4️⃣ BOTÃO DE AÇÃO
+
+Adicionar abaixo:
+
+<button id="btnSolicitarSaque" class="btn-principal">
+  Solicitar Valor
+</button>
+
+🔄 5️⃣ AÇÃO DO BOTÃO
+
+No JS:
+
+document.getElementById("btnSolicitarSaque").addEventListener("click", function() {
+
+  window.location.href = "solicitacao.html";
+
+});
+
+📌 6️⃣ AVISO DISCRETO (IMPORTANTE)
+
+Adicionar pequeno texto abaixo:
+
+<small>
+Valores sujeitos à validação conforme regulamento da plataforma.
+</small>
+
+🎨 7️⃣ ESTILO (PADRÃO LIVelo)
+.box-valor {
+  background: #FCE4F1;
+  border: 1px solid #EC008C;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.box-valor h2 {
+  color: #EC008C;
+  font-weight: 700;
+}
+
+.box-valor h3 {
+  color: #222;
+}
+
+✅ RESULTADO FINAL
+
+Depois disso:
+
+✔️ Cada pessoa vê um valor diferente
+✔️ Baseado nos próprios pontos
+✔️ 10% automático
+✔️ Visual confiável
+✔️ Fluxo profissional

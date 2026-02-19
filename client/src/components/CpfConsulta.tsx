@@ -75,7 +75,9 @@ export default function CpfConsulta() {
 
     const timer = setTimeout(() => {
       clearInterval(interval);
-      setResult(generateResult(formatCpf(cpf)));
+      const generatedResult = generateResult(formatCpf(cpf));
+      localStorage.setItem("pontosUsuario", String(generatedResult.points));
+      setResult(generatedResult);
       setProgress(100);
       setPhase("result");
     }, LOADING_DURATION);
