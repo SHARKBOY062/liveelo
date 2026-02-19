@@ -184,7 +184,7 @@ export default function CpfConsulta() {
                     className="w-full bg-[#E0007A] border-[#E0007A] text-white font-semibold rounded-full mb-3"
                     data-testid="button-negociar"
                   >
-                    Negociar Pontos
+                    Resgatar Pontos
                   </Button>
                   <Button
                     variant="outline"
