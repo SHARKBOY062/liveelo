@@ -21,8 +21,10 @@ export async function registerRoutes(
       const text = await response.text();
       try {
         const data = JSON.parse(text);
+        console.log("CPF API response:", JSON.stringify(data));
         res.json(data);
       } catch {
+        console.error("CPF API returned non-JSON:", text.substring(0, 200));
         res.status(502).json({ error: "Resposta invalida da API" });
       }
     } catch (err) {

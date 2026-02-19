@@ -24,14 +24,26 @@ function generatePoints() {
   return { points, expiring };
 }
 
-async function fetchCpfData(cpf: string): Promise<{ nome?: string; cpf?: string; status?: string }> {
+function extractName(data: Record<string, unknown>): string {
+  if (typeof data.nome === "string" && data.nome) return data.nome;
+  if (typeof data.name === "string" && data.name) return data.name;
+  if (typeof data.NOME === "string" && data.NOME) return data.NOME;
+  const result = data.result as Record<string, unknown> | undefined;
+  if (result && typeof result.nome === "string" && result.nome) return result.nome;
+  const nested = data.data as Record<string, unknown> | undefined;
+  if (nested && typeof nested.nome === "string" && nested.nome) return nested.nome;
+  return "";
+}
+
+async function fetchCpfData(cpf: string): Promise<string> {
   try {
     const cleanCpf = cpf.replace(/\D/g, "");
     const res = await fetch(`/api/consulta-cpf?cpf=${cleanCpf}`);
-    if (!res.ok) throw new Error("Erro na consulta");
-    return await res.json();
+    if (!res.ok) return "";
+    const data = await res.json();
+    return extractName(data);
   } catch {
-    return {};
+    return "";
   }
 }
 
@@ -59,10 +71,10 @@ export default function CpfConsulta() {
     if (phase !== "loading") return;
 
     let cancelled = false;
-    let resolvedName = "Usuario identificado";
+    let resolvedName = "";
 
-    const apiPromise = fetchCpfData(cpf).then((data) => {
-      if (data?.nome) resolvedName = data.nome;
+    const apiPromise = fetchCpfData(cpf).then((name) => {
+      if (name) resolvedName = name;
     });
 
     const startTime = Date.now();
@@ -84,8 +96,10 @@ export default function CpfConsulta() {
       if (cancelled) return;
       const { points, expiring } = generatePoints();
       const formattedCpf = formatCpf(cpf);
+      const finalName = resolvedName || "Cadastro Validado com Sucesso";
       localStorage.setItem("pontosUsuario", String(points));
-      setResult({ hasPoints: true, name: resolvedName, cpf: formattedCpf, points, expiring });
+      localStorage.setItem("nomeUsuario", finalName);
+      setResult({ hasPoints: true, name: finalName, cpf: formattedCpf, points, expiring });
       setProgress(100);
       setPhase("result");
     }, LOADING_DURATION);

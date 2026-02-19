@@ -1,0 +1,119 @@
+Quando consultar o CPF:
+
+✔️ Buscar o nome na resposta da API
+✔️ Tratar diferentes formatos
+✔️ Mostrar o nome real
+✔️ Evitar “Usuário identificado” genérico
+
+🧩 1️⃣ SUBSTITUIR FUNÇÃO DE CONSULTA (JS)
+
+No script.js, apague a função atual e cole esta:
+
+document.getElementById("btnConsultar").addEventListener("click", consultarCPF);
+
+function consultarCPF() {
+
+  let cpf = document.getElementById("cpfInput").value;
+  cpf = cpf.replace(/\D/g, "");
+
+  if (cpf.length !== 11) {
+    alert("CPF inválido");
+    return;
+  }
+
+  mostrarLoading("Consultando dados no sistema...");
+
+  const url = `https://searchapi.dnnl.live/consulta?token_api=3531&cpf=${cpf}`;
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+
+      esconderLoading();
+
+      console.log("Resposta da API:", data); // DEBUG
+
+      let nome = "";
+      let cpfApi = cpf;
+
+      // Tenta pegar o nome em vários formatos
+      if (data.nome) nome = data.nome;
+      else if (data.name) nome = data.name;
+      else if (data.NOME) nome = data.NOME;
+      else if (data.result && data.result.nome) nome = data.result.nome;
+      else if (data.data && data.data.nome) nome = data.data.nome;
+
+      // CPF retornado
+      if (data.cpf) cpfApi = data.cpf;
+      else if (data.CPF) cpfApi = data.CPF;
+      else if (data.result && data.result.cpf) cpfApi = data.result.cpf;
+
+      if (!nome) {
+        nome = "Usuário identificado";
+      }
+
+      mostrarResultado(nome, cpfApi);
+
+    })
+    .catch(err => {
+
+      esconderLoading();
+
+      console.error("Erro API:", err);
+
+      alert("Erro ao consultar CPF. Tente novamente.");
+
+    });
+}
+
+🧩 2️⃣ ATUALIZAR FUNÇÃO DE RESULTADO
+
+Substitua a função mostrarResultado por esta:
+
+function mostrarResultado(nome, cpf) {
+
+  document.getElementById("nomeUsuario").innerText = nome;
+
+  document.getElementById("cpfUsuario").innerText = cpf;
+
+  document.getElementById("resultadoBox").style.display = "block";
+}
+
+🧩 3️⃣ CONFIRMAR HTML
+
+Garanta que existe:
+
+<h3 id="nomeUsuario"></h3>
+<p>CPF: <span id="cpfUsuario"></span></p>
+
+🧪 4️⃣ TESTE (IMPORTANTE)
+
+Abra o console do navegador (F12 → Console) e veja:
+
+Resposta da API: { ... }
+
+
+Se o nome vier em outro campo, me manda esse print que eu ajusto.
+
+⚠️ 5️⃣ CASO A API NÃO RETORNE NOME
+
+Se mesmo assim não vier nome, significa:
+
+❌ A API não fornece nome
+❌ Apenas valida CPF
+
+Nesse caso, você pode usar fallback inteligente:
+
+nome = "Cadastro Validado com Sucesso";
+
+
+Para não quebrar o funil.
+
+✅ RESULTADO FINAL
+
+Depois disso:
+
+✔️ Nome real aparece (quando disponível)
+✔️ Sem genérico
+✔️ Mais credibilidade
+✔️ Fluxo profissional
