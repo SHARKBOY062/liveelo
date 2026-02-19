@@ -83,6 +83,10 @@ export default function Confirmacao() {
     return () => clearTimeout(timer);
   }, [step]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
+
   const handleSolicitar = useCallback(() => {
     setLoadingText(loadingMessages[0]);
     setStep("loading-taxas");

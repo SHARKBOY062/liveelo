@@ -1,0 +1,169 @@
+Ajuste o site para funcionar corretamente no modo celular, corrigindo quebras de layout, centralizando elementos e garantindo que toda mudança de página volte automaticamente para o topo.
+
+🎯 OBJETIVO
+
+Corrigir:
+
+✔️ Elementos desalinhados no mobile
+✔️ Loading fora do lugar
+✔️ Conteúdo cortado
+✔️ Scroll bugado
+
+E implementar:
+
+➡️ Scroll automático para o topo ao trocar de página.
+
+🧩 1️⃣ CORREÇÃO RESPONSIVA (CSS MOBILE)
+
+Adicionar no style.css:
+
+/* Ajustes gerais para mobile */
+@media (max-width: 768px) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+  main {
+    padding: 15px;
+  }
+
+  /* Centralizar cards */
+  .resultado-card,
+  .consulta-box,
+  .pix-box,
+  .tela-padrao {
+    width: 100%;
+    max-width: 100%;
+    margin: 20px auto;
+  }
+
+  /* Corrigir loading */
+  .loading-geral,
+  .loading-resgate,
+  .confirmacao-resgate {
+    padding: 20px;
+  }
+
+  .loading-box {
+    width: 90%;
+  }
+
+  /* Botões mobile */
+  button {
+    width: 100%;
+    font-size: 15px;
+    padding: 14px;
+  }
+
+  /* Texto */
+  h1, h2, h3 {
+    text-align: center;
+  }
+
+  p {
+    text-align: center;
+  }
+
+}
+
+🧩 2️⃣ CENTRALIZAR LOADING NO MOBILE
+
+Corrigir no CSS:
+
+.loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+🧩 3️⃣ IMPEDIR CONTEÚDO “ESTOURADO”
+
+Adicionar:
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+⚙️ 4️⃣ VOLTAR PARA O TOPO AO TROCAR DE PÁGINA
+
+No script.js, adicionar:
+
+✅ Ao carregar qualquer página:
+window.onload = function() {
+  window.scrollTo(0, 0);
+};
+
+✅ Ao mudar de tela via JS:
+
+Sempre que tiver:
+
+window.location.href = "pagina.html";
+
+
+Trocar por:
+
+window.scrollTo(0, 0);
+window.location.href = "pagina.html";
+
+✅ Para telas internas (sem recarregar):
+
+Se você usa display: none/block:
+
+function irParaTopo() {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+
+E chamar:
+
+irParaTopo();
+
+
+Sempre que trocar de tela.
+
+🧩 5️⃣ AJUSTAR FOOTER NO MOBILE
+
+Se o rodapé estiver quebrando, adicionar:
+
+footer {
+  text-align: center;
+  padding: 25px 15px;
+}
+
+🚀 6️⃣ INSTRUÇÃO FINAL
+
+Aplicar todas as correções sem quebrar:
+
+✔️ Loading
+✔️ PIX
+✔️ Resgate
+✔️ Checkout
+✔️ Navegação
+
+Testar em:
+
+Android
+
+iPhone
+
+Chrome DevTools
+
+✅ RESULTADO FINAL
+
+Depois disso:
+
+📱 Mobile organizado
+⬆️ Sempre começa no topo
+🎯 Nada quebrado
+💎 Visual profissional
+🚀 Mais conversão

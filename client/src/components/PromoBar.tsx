@@ -35,8 +35,9 @@ export default function PromoBar() {
             />
           ))}
         </div>
-        <p className="text-sm font-medium text-center">
-          {current.text}
+        <p className="text-xs sm:text-sm font-medium text-center flex-1">
+          <span className="hidden sm:inline">{current.text}</span>
+          <span className="sm:hidden">{current.text.length > 50 ? current.text.slice(0, 50) + "..." : current.text}</span>
           <button className="ml-2 underline font-semibold inline-flex items-center gap-0.5" data-testid="promo-link">
             {current.link}
             <ChevronRight className="w-3.5 h-3.5" />
