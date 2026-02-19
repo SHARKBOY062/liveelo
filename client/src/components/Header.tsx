@@ -28,10 +28,12 @@ export default function Header() {
             </button>
 
             <a href="/" className="flex items-center" data-testid="logo-link">
-              <svg width="120" height="32" viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <text x="0" y="24" fontFamily="Inter" fontWeight="800" fontSize="22" fill="#7B2D8E">livelo</text>
-                <circle cx="108" cy="12" r="4" fill="#FF6600" />
-              </svg>
+              <img
+                src="/images/livelo-logo.jpg"
+                alt="Livelo"
+                className="h-8 w-auto object-contain"
+                data-testid="img-logo"
+              />
             </a>
           </div>
 
