@@ -135,7 +135,7 @@ export default function CpfConsulta() {
                   size="lg"
                   onClick={handleSubmit}
                   disabled={!validateCpf(cpf) || isLoading}
-                  className="bg-[#FF6600] border-[#FF6600] text-white font-semibold w-full sm:w-auto"
+                  className="bg-white border-white text-[#E91E63] font-semibold w-full sm:w-auto"
                   data-testid="button-consultar"
                 >
                   <Search className="w-4 h-4 mr-2" />
