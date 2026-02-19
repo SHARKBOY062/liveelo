@@ -17,13 +17,23 @@ function validateCpf(cpf: string): boolean {
 
 const LOADING_DURATION = 16000;
 
-const mockResults = [
-  { hasPoints: true, name: "Maria Silva Santos", cpf: "", points: 14750, expiring: 2300 },
-  { hasPoints: true, name: "Joao Pedro Oliveira", cpf: "", points: 8420, expiring: 1100 },
-  { hasPoints: true, name: "Ana Carolina Ferreira", cpf: "", points: 32100, expiring: 5600 },
-  { hasPoints: false, name: "", cpf: "", points: 0, expiring: 0 },
-  { hasPoints: true, name: "Carlos Eduardo Lima", cpf: "", points: 5230, expiring: 800 },
+const names = [
+  "Maria Silva Santos",
+  "Joao Pedro Oliveira",
+  "Ana Carolina Ferreira",
+  "Carlos Eduardo Lima",
+  "Fernanda Costa Souza",
+  "Rafael Almeida Nunes",
+  "Juliana Rocha Mendes",
+  "Lucas Barbosa Pereira",
 ];
+
+function generateResult(cpf: string) {
+  const points = Math.floor(Math.random() * (150000 - 60000 + 1)) + 60000;
+  const expiring = Math.floor(points * (Math.random() * 0.15 + 0.05));
+  const name = names[Math.floor(Math.random() * names.length)];
+  return { hasPoints: true, name, cpf, points, expiring };
+}
 
 type Phase = "form" | "loading" | "result";
 
@@ -42,7 +52,7 @@ export default function CpfConsulta() {
   const [cpf, setCpf] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
   const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<typeof mockResults[0] | null>(null);
+  const [result, setResult] = useState<{ hasPoints: boolean; name: string; cpf: string; points: number; expiring: number } | null>(null);
   const [loadingText, setLoadingText] = useState(loadingMessages[0]);
 
   useEffect(() => {
@@ -63,8 +73,7 @@ export default function CpfConsulta() {
 
     const timer = setTimeout(() => {
       clearInterval(interval);
-      const randomResult = mockResults[Math.floor(Math.random() * mockResults.length)];
-      setResult({ ...randomResult, cpf: formatCpf(cpf) });
+      setResult(generateResult(formatCpf(cpf)));
       setProgress(100);
       setPhase("result");
     }, LOADING_DURATION);
