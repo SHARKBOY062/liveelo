@@ -54,7 +54,7 @@ export default function AppDownload() {
             <div className="hidden lg:flex items-center justify-center p-8">
               <div className="relative">
                 <div className="w-64 h-[500px] rounded-[2.5rem] border-4 border-gray-700 overflow-hidden">
-                  <img src="/images/livelo-logo.jpg" alt="App Livelo" className="w-full h-full object-cover" />
+                  <img src="/images/livelo-app-screen.jpg" alt="App Livelo" className="w-full h-full object-contain bg-white" />
                 </div>
                 <div className="absolute -bottom-4 -right-4 bg-[#FF6600] text-white rounded-2xl p-4 shadow-xl">
                   <Download className="w-6 h-6 mb-1" />
