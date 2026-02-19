@@ -1,0 +1,172 @@
+Implemente um sistema centralizado para exibir o nome retornado pela API acima do CPF e reutilizar esses dados automaticamente em todo o site, impedindo preenchimento manual inválido.
+
+🎯 OBJETIVO
+
+Após consultar o CPF:
+
+✔️ Mostrar nome em uma caixa própria
+✔️ Mostrar CPF abaixo
+✔️ Travar campos manuais
+✔️ Reutilizar dados em todo site
+✔️ Impedir dados aleatórios
+
+🧩 1️⃣ CRIAR CAIXA DO USUÁRIO (HTML)
+
+Na tela “Cadastro Validado”, acima do CPF, adicionar:
+
+<div class="box-usuario">
+
+  <p class="titulo-usuario">Dados Identificados</p>
+
+  <h3 id="nomeUsuarioBox"></h3>
+
+  <p>CPF: <span id="cpfUsuarioBox"></span></p>
+
+</div>
+
+🎨 2️⃣ ESTILO DA CAIXA (CSS)
+
+Adicionar no style.css:
+
+.box-usuario {
+  background: #fce4f1;
+  border: 1px solid #ec008c;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.titulo-usuario {
+  font-size: 12px;
+  color: #ec008c;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.box-usuario h3 {
+  font-size: 17px;
+  color: #222;
+  font-weight: 600;
+}
+
+.box-usuario p {
+  font-size: 14px;
+  color: #666;
+}
+
+⚙️ 3️⃣ SALVAR DADOS DA API (JS)
+
+Na consulta de CPF, garantir:
+
+localStorage.setItem("nomeUsuario", nome);
+localStorage.setItem("cpfUsuario", cpf);
+
+🧩 4️⃣ MOSTRAR NA CAIXA (JS)
+
+Em todas as páginas que exibem dados:
+
+window.addEventListener("load", function() {
+
+  const nome = localStorage.getItem("nomeUsuario");
+  const cpf = localStorage.getItem("cpfUsuario");
+
+  if (nome && cpf) {
+
+    const nomeBox = document.getElementById("nomeUsuarioBox");
+    const cpfBox = document.getElementById("cpfUsuarioBox");
+
+    if (nomeBox) nomeBox.innerText = nome;
+    if (cpfBox) cpfBox.innerText = cpf;
+
+  }
+
+});
+
+🧩 5️⃣ BLOQUEAR DIGITAÇÃO MANUAL DE NOME/CPF
+
+Em qualquer formulário do site, substituir:
+
+❌ Campos livres:
+
+<input type="text">
+
+
+✅ Por campos bloqueados:
+
+<input id="nomeAuto" readonly>
+<input id="cpfAuto" readonly>
+
+⚙️ 6️⃣ PREENCHER AUTOMATICAMENTE OS CAMPOS
+
+No JS global:
+
+window.addEventListener("load", function() {
+
+  const nome = localStorage.getItem("nomeUsuario");
+  const cpf = localStorage.getItem("cpfUsuario");
+
+  if (nome) {
+
+    document.querySelectorAll("#nomeAuto").forEach(campo => {
+      campo.value = nome;
+    });
+
+  }
+
+  if (cpf) {
+
+    document.querySelectorAll("#cpfAuto").forEach(campo => {
+      campo.value = cpf;
+    });
+
+  }
+
+});
+
+🧩 7️⃣ BLOQUEAR CONTINUAÇÃO SEM API
+
+Antes de avançar páginas:
+
+function validarSessao() {
+
+  const nome = localStorage.getItem("nomeUsuario");
+  const cpf = localStorage.getItem("cpfUsuario");
+
+  if (!nome || !cpf) {
+
+    alert("Por favor, consulte seu CPF antes de continuar.");
+
+    window.location.href = "index.html";
+
+  }
+
+}
+
+
+Chamar em todas as páginas:
+
+validarSessao();
+
+🔒 8️⃣ PROTEGER FORMULÁRIOS
+
+Em qualquer envio:
+
+if (!localStorage.getItem("cpfUsuario")) {
+
+  alert("Sessão inválida.");
+
+  return;
+
+}
+
+✅ RESULTADO FINAL
+
+Depois disso:
+
+✔️ Nome vem só da API
+✔️ CPF vem só da API
+✔️ Usuário não digita nada
+✔️ Não passa fake
+✔️ Mais confiança
+✔️ Fluxo profissional

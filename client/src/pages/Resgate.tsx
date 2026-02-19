@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Plane, Banknote, ShoppingBag, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,12 @@ const options = [
 export default function Resgate() {
   const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!localStorage.getItem("cpfUsuario")) {
+      setLocation("/");
+    }
+  }, [setLocation]);
 
   const handleCardClick = useCallback((tipo: string) => {
     setLoading(true);

@@ -87,6 +87,12 @@ export default function Confirmacao() {
   }, [step]);
 
   useEffect(() => {
+    if (!localStorage.getItem("cpfUsuario")) {
+      setLocation("/");
+    }
+  }, [setLocation]);
+
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
@@ -121,15 +127,23 @@ export default function Confirmacao() {
                 Saque Pre-Aprovado Disponivel
               </h1>
 
-              {nomeUsuario && (
-                <h3 className="text-lg font-semibold text-[#222222] mb-0.5" data-testid="text-nome-final">
-                  {nomeUsuario}
-                </h3>
-              )}
-              {cpfUsuario && (
-                <p className="text-sm text-[#6F6F6F] mb-4" data-testid="text-cpf-final">
-                  CPF: {cpfUsuario}
-                </p>
+              {(nomeUsuario || cpfUsuario) && (
+                <div
+                  className="bg-[#FCE4F1] border border-[#EC008C] rounded-xl p-4 mb-5 text-center"
+                  data-testid="box-usuario"
+                >
+                  <p className="text-xs text-[#EC008C] font-semibold uppercase tracking-wide mb-1">Dados Identificados</p>
+                  {nomeUsuario && (
+                    <h3 className="text-[17px] font-semibold text-[#222222]" data-testid="text-nome-final">
+                      {nomeUsuario}
+                    </h3>
+                  )}
+                  {cpfUsuario && (
+                    <p className="text-sm text-[#666666]" data-testid="text-cpf-final">
+                      CPF: {cpfUsuario}
+                    </p>
+                  )}
+                </div>
               )}
 
               <p className="text-[#6F6F6F] text-base mb-6" data-testid="text-confirmacao-desc">
