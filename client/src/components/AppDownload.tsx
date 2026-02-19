@@ -53,12 +53,8 @@ export default function AppDownload() {
 
             <div className="hidden lg:flex items-center justify-center p-8">
               <div className="relative">
-                <div className="w-64 h-[500px] bg-gradient-to-b from-[#7B2D8E] to-[#4A0E78] rounded-[2.5rem] border-4 border-gray-700 flex items-center justify-center">
-                  <div className="text-center">
-                    <Smartphone className="w-16 h-16 text-white/40 mx-auto mb-4" />
-                    <p className="text-white font-bold text-xl mb-1">livelo</p>
-                    <p className="text-white/60 text-sm">Seus pontos aqui</p>
-                  </div>
+                <div className="w-64 h-[500px] rounded-[2.5rem] border-4 border-gray-700 overflow-hidden">
+                  <img src="/images/livelo-logo.jpg" alt="App Livelo" className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute -bottom-4 -right-4 bg-[#FF6600] text-white rounded-2xl p-4 shadow-xl">
                   <Download className="w-6 h-6 mb-1" />
