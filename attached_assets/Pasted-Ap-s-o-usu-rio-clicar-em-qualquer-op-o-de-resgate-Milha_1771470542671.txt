@@ -1,0 +1,134 @@
+Após o usuário clicar em qualquer opção de resgate (Milhas, Cashback ou Produtos), implemente uma nova etapa solicitando a escolha do banco e os dados para depósito.
+
+🎯 OBJETIVO
+
+Fluxo esperado:
+
+1️⃣ Clica em opção de resgate
+2️⃣ Tela de carregamento (3s)
+3️⃣ Tela de escolha de banco
+4️⃣ Seleciona banco
+5️⃣ Abre formulário PIX/dados
+6️⃣ Continua processo
+
+🧩 1️⃣ REDIRECIONAMENTO COM LOADING
+
+Ao clicar em qualquer card:
+
+function iniciarResgate(tipo) {
+
+  document.getElementById("loadingResgate").style.display = "flex";
+
+  setTimeout(() => {
+    window.location.href = "banco.html?tipo=" + tipo;
+  }, 3000);
+}
+
+📌 Nos botões:
+<button onclick="iniciarResgate('milhas')">Transferir</button>
+<button onclick="iniciarResgate('cashback')">Solicitar</button>
+<button onclick="iniciarResgate('produtos')">Ver</button>
+
+🧱 2️⃣ NOVA PÁGINA: banco.html
+
+Criar mantendo header.
+
+📄 3️⃣ TELA: ESCOLHA DO BANCO
+
+Dentro do <main>:
+
+Título:
+
+Escolha seu banco para receber
+
+Cards:
+
+Criar botões para:
+
+Itaú
+
+Santander
+
+Bradesco
+
+Nubank
+
+Banco do Brasil
+
+Caixa
+
+Exemplo:
+
+<div class="bancos">
+  <button class="banco" data-banco="Itau">Itaú</button>
+  <button class="banco" data-banco="Santander">Santander</button>
+  <button class="banco" data-banco="Bradesco">Bradesco</button>
+  <button class="banco" data-banco="Nubank">Nubank</button>
+  <button class="banco" data-banco="BB">Banco do Brasil</button>
+  <button class="banco" data-banco="Caixa">Caixa</button>
+</div>
+
+🎨 4️⃣ DESIGN DOS BANCOS
+
+Estilo:
+
+Branco
+
+Borda cinza
+
+Hover rosa
+
+Rounded
+
+⚙️ 5️⃣ ABRIR FORMULÁRIO AO SELECIONAR BANCO
+
+No JS:
+
+const bancos = document.querySelectorAll(".banco");
+
+bancos.forEach(btn => {
+  btn.addEventListener("click", function() {
+
+    document.getElementById("formDeposito").style.display = "block";
+
+    document.getElementById("bancoSelecionado").innerText =
+      this.dataset.banco;
+
+  });
+});
+
+🧾 6️⃣ FORMULÁRIO DE DEPÓSITO
+
+Adicionar abaixo:
+
+<div id="formDeposito" style="display:none;">
+
+  <h3>Dados para Depósito - <span id="bancoSelecionado"></span></h3>
+
+  <input type="text" placeholder="Nome completo">
+
+  <input type="text" placeholder="CPF">
+
+  <input type="text" placeholder="Agência">
+
+  <input type="text" placeholder="Conta">
+
+  <input type="text" placeholder="Chave PIX">
+
+  <button id="btnEnviar">Continuar</button>
+
+</div>
+
+🔄 7️⃣ LOADING AO ENVIAR
+document.getElementById("btnEnviar").addEventListener("click", function() {
+
+  document.getElementById("loadingResgate").style.display = "flex";
+
+  setTimeout(() => {
+    window.location.href = "confirmacao.html";
+  }, 3000);
+});
+
+📱 8️⃣ RESPONSIVO
+
+Empilhar no mobile.

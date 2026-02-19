@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { useLocation } from "wouter";
 import { Plane, Banknote, ShoppingBag, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ const options = [
     title: "Milhas Aereas",
     description: "Converta seus pontos em milhas para viajar com as principais companhias aereas do Brasil e do mundo.",
     cta: "Transferir para companhias",
-    href: "/milhas",
+    tipo: "milhas",
     color: "#EC008C",
     bgLight: "#FCE4F1",
   },
@@ -20,7 +21,7 @@ const options = [
     title: "Cashback",
     description: "Receba o valor direto na sua conta bancaria. Resgate rapido e sem complicacao.",
     cta: "Solicitar Deposito",
-    href: "/cashback",
+    tipo: "cashback",
     color: "#EC008C",
     bgLight: "#FCE4F1",
   },
@@ -29,7 +30,7 @@ const options = [
     title: "Produtos do Site",
     description: "Troque seus pontos por eletronicos, roupas, acessorios e muito mais no catalogo Livelo.",
     cta: "Ver Catalogo",
-    href: "/produtos",
+    tipo: "produtos",
     color: "#EC008C",
     bgLight: "#FCE4F1",
   },
@@ -37,6 +38,15 @@ const options = [
 
 export default function Resgate() {
   const [, setLocation] = useLocation();
+  const [loading, setLoading] = useState(false);
+
+  const handleCardClick = useCallback((tipo: string) => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setLocation(`/banco?tipo=${tipo}`);
+    }, 3000);
+  }, [setLocation]);
 
   return (
     <div className="min-h-screen bg-[#F6F6F6] flex flex-col" data-testid="resgate-page">
@@ -69,7 +79,7 @@ export default function Resgate() {
                 key={i}
                 className="bg-white border border-[#E5E5E5] rounded-2xl p-6 flex flex-col items-center text-center hover:border-[#EC008C] hover:shadow-lg transition-all cursor-pointer group"
                 style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}
-                onClick={() => setLocation(option.href)}
+                onClick={() => handleCardClick(option.tipo)}
                 data-testid={`card-resgate-${i}`}
               >
                 <div
@@ -99,6 +109,18 @@ export default function Resgate() {
       </main>
 
       <Footer />
+
+      {loading && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/95"
+          data-testid="loading-resgate-overlay"
+        >
+          <div className="text-center">
+            <div className="w-12 h-12 border-[5px] border-gray-200 border-t-[#EC008C] rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-[#EC008C] font-semibold text-base">Preparando seu resgate...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
