@@ -104,13 +104,13 @@ export default function CpfConsulta() {
         className="consulta-abaixo-banner relative z-10 flex justify-center px-4 -mt-10 sm:-mt-10 mb-8"
         data-testid="cpf-consulta-section"
       >
-        <div className="w-[90%] max-w-[520px] bg-white rounded-md shadow-lg p-6 sm:p-8">
+        <div className="w-[95%] max-w-[620px] bg-white rounded-md shadow-xl p-8 sm:p-10">
           {(phase === "form" || phase === "loading") && (
             <div data-testid="cpf-form">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 text-center">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 text-center">
                 Consulte seus pontos agora
               </h3>
-              <p className="text-gray-500 text-sm mb-5 text-center">
+              <p className="text-gray-500 text-sm sm:text-base mb-6 text-center">
                 Digite seu CPF e veja se possui saldo disponivel
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
