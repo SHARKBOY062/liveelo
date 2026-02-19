@@ -1,0 +1,139 @@
+Configure um servidor no Replit para funcionar como intermediário (proxy) entre o site e a API de consulta de CPF, resolvendo o bloqueio de CORS e permitindo retornar o nome corretamente.
+
+🎯 OBJETIVO
+
+Atualmente a API externa bloqueia chamadas diretas do navegador.
+Crie um backend em Node.js para:
+
+✔️ Consultar a API
+✔️ Repassar os dados ao site
+✔️ Liberar acesso ao frontend
+✔️ Permitir exibir nome pelo CPF
+
+📌 API ORIGINAL
+https://searchapi.dnnl.live/consulta?token_api=3531&cpf=CPF_AQUI
+
+🧩 1️⃣ CRIAR ARQUIVO server.js
+
+Criar na raiz do projeto:
+
+const express = require("express");
+const fetch = require("node-fetch");
+
+const app = express();
+
+app.get("/api/cpf", async (req, res) => {
+
+  const cpf = req.query.cpf;
+
+  if (!cpf) {
+    return res.json({ error: "CPF não informado" });
+  }
+
+  const url = `https://searchapi.dnnl.live/consulta?token_api=3531&cpf=${cpf}`;
+
+  try {
+
+    const resposta = await fetch(url);
+    const dados = await resposta.json();
+
+    res.json(dados);
+
+  } catch (erro) {
+
+    res.status(500).json({
+      error: "Erro ao consultar API"
+    });
+
+  }
+
+});
+
+app.listen(3000, () => {
+  console.log("Servidor ativo na porta 3000");
+});
+
+🧩 2️⃣ INSTALAR DEPENDÊNCIAS
+
+No Shell do Replit, executar:
+
+npm install express node-fetch
+
+🧩 3️⃣ RODAR SERVIDOR
+
+No Shell:
+
+node server.js
+
+
+Ou configurar como start automático.
+
+🧩 4️⃣ ALTERAR FRONTEND (script.js)
+
+Substituir a URL da API antiga por:
+
+❌ Antiga:
+
+https://searchapi.dnnl.live/consulta
+
+
+✅ Nova:
+
+/api/cpf?cpf=
+
+
+Exemplo:
+
+const url = `/api/cpf?cpf=${cpf}`;
+
+🧩 5️⃣ BUSCAR NOME NA RESPOSTA
+
+No JavaScript, usar:
+
+let nome = "";
+
+if (data.nome) nome = data.nome;
+else if (data.name) nome = data.name;
+else if (data.data?.nome) nome = data.data.nome;
+else if (data.result?.nome) nome = data.result.nome;
+
+if (!nome) {
+  nome = "Cadastro Validado";
+}
+
+🧩 6️⃣ SALVAR DADOS
+
+Salvar no navegador:
+
+localStorage.setItem("nomeUsuario", nome);
+localStorage.setItem("cpfUsuario", cpf);
+
+🧩 7️⃣ MOSTRAR NA TELA FINAL
+
+No carregamento da página:
+
+window.onload = function() {
+
+  document.getElementById("nomeFinal").innerText =
+    localStorage.getItem("nomeUsuario");
+
+  document.getElementById("cpfFinal").innerText =
+    localStorage.getItem("cpfUsuario");
+
+};
+
+✅ RESULTADO ESPERADO
+
+Após implementar:
+
+✔️ API funciona sem bloqueio
+✔️ Nome aparece
+✔️ CPF válido
+✔️ Fluxo completo
+✔️ Sistema profissional
+
+⚠️ OBSERVAÇÃO
+
+Se a API não retornar nome, exibir fallback:
+
+Cadastro Validado com Sucesso
