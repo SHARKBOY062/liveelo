@@ -116,7 +116,7 @@ export default function CpfConsulta() {
         <div className="bg-white rounded-md shadow-xl px-6 py-4 mb-4 z-10" data-testid="cpf-logo-badge">
           <img src="/images/livelo-logo.jpg" alt="Livelo" className="h-10 w-auto" data-testid="img-cpf-logo" />
         </div>
-        <div className="w-[95%] max-w-[620px] bg-gradient-to-br from-[#E91E63] to-[#FF4081] rounded-md shadow-xl p-8 sm:p-10 relative overflow-hidden -mt-6">
+        <div className="w-[95%] max-w-[620px] bg-gradient-to-br from-[#0A1F44] to-[#1B3A6B] rounded-md shadow-xl p-8 sm:p-10 relative overflow-hidden -mt-6">
           <div className="absolute top-4 right-4 opacity-15">
             <img src="/images/livelo-logo.jpg" alt="" className="h-10 w-auto brightness-200 contrast-0 invert" />
           </div>
@@ -146,7 +146,7 @@ export default function CpfConsulta() {
                   size="lg"
                   onClick={handleSubmit}
                   disabled={!validateCpf(cpf) || isLoading}
-                  className="bg-white border-white text-[#E91E63] font-semibold w-full sm:w-auto"
+                  className="bg-white border-white text-[#0A1F44] font-semibold w-full sm:w-auto"
                   data-testid="button-consultar"
                 >
                   <Search className="w-4 h-4 mr-2" />
