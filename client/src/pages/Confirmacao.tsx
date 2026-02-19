@@ -56,7 +56,8 @@ export default function Confirmacao() {
     return generated;
   }, []);
 
-  const valorSaque = pontos * 0.10;
+  const percentual = useMemo(() => Math.random() * (0.06 - 0.03) + 0.03, []);
+  const valorSaque = pontos * percentual;
   const protocolo = useMemo(() => Math.random().toString(36).substring(2, 10).toUpperCase(), []);
 
   useEffect(() => {
@@ -131,7 +132,7 @@ export default function Confirmacao() {
                 <h3 className="text-2xl font-bold text-[#222222] mb-4" data-testid="text-total-pontos">
                   {pontos.toLocaleString("pt-BR")}
                 </h3>
-                <p className="text-sm text-[#6F6F6F] mb-1">Valor disponivel para saque (10%):</p>
+                <p className="text-sm text-[#6F6F6F] mb-1">Valor disponivel para saque ({Math.round(percentual * 100)}%):</p>
                 <h2 className="text-3xl font-bold text-[#EC008C]" data-testid="text-valor-estimado">
                   R$ {valorSaque.toFixed(2).replace(".", ",")}
                 </h2>
