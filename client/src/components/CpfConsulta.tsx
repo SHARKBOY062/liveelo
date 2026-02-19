@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Search, CheckCircle, AlertCircle } from "lucide-react";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 function formatCpf(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -267,58 +268,21 @@ export default function CpfConsulta() {
         </div>
       </div>
 
-      {phase === "loading" && (
-        <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center cursor-wait"
-          style={{ backgroundColor: "rgba(236, 0, 140, 0.92)", backdropFilter: "blur(8px)" }}
-          data-testid="loading-overlay"
-        >
-          <div className="text-center max-w-sm mx-auto px-6">
-            <div className="relative w-20 h-20 mx-auto mb-8">
-              <div className="absolute inset-0 rounded-full border-4 border-white/20" />
-              <div className="absolute inset-0 rounded-full border-4 border-t-white border-r-transparent border-b-transparent border-l-transparent animate-spin" />
-              <div className="absolute inset-2 rounded-full border-4 border-transparent border-t-[#FCE4F1] animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
-              <Loader2 className="absolute inset-0 m-auto w-8 h-8 text-white/60 animate-pulse" />
-            </div>
+      <LoadingOverlay
+        visible={phase === "loading"}
+        title="Consultando pontos no sistema Livelo..."
+        subtitle={loadingText}
+        duration={LOADING_DURATION}
+        testId="loading-overlay"
+      />
 
-            <h3 className="text-xl font-bold text-white mb-2" data-testid="text-loading-title">
-              Consultando pontos no sistema Livelo...
-            </h3>
-            <p className="text-white/70 text-sm mb-8 transition-all duration-500" data-testid="text-loading-status">
-              {loadingText}
-            </p>
-
-            <div className="w-full bg-white/20 rounded-full h-2 mb-3 overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-300 ease-linear"
-                style={{
-                  width: `${progress}%`,
-                  background: "linear-gradient(90deg, #FFFFFF, #FCE4F1, #FFFFFF)",
-                  backgroundSize: "200% 100%",
-                  animation: "shimmer 2s linear infinite",
-                }}
-                data-testid="loading-progress-bar"
-              />
-            </div>
-            <p className="text-white/50 text-xs" data-testid="text-loading-percent">
-              {Math.round(progress)}%
-            </p>
-          </div>
-        </div>
-      )}
-
-      {resgateLoading && (
-        <div
-          className="fixed inset-0 z-[999999] flex items-center justify-center"
-          style={{ background: "#0b1324", width: "100vw", height: "100vh", minHeight: "100dvh" }}
-          data-testid="loading-resgate-overlay"
-        >
-          <div className="flex flex-col items-center gap-4 px-5 text-center">
-            <div className="w-[55px] h-[55px] border-[5px] border-white/20 border-t-[#EC008C] rounded-full animate-spin" />
-            <p className="text-[#EC008C] font-semibold text-base sm:text-lg">Validando seus pontos...</p>
-          </div>
-        </div>
-      )}
+      <LoadingOverlay
+        visible={resgateLoading}
+        title="Validando seus pontos..."
+        subtitle="Preparando opcoes de resgate..."
+        duration={4000}
+        testId="loading-resgate-overlay"
+      />
     </>
   );
 }

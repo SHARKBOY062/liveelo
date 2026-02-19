@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import PromoBar from "@/components/PromoBar";
 import Footer from "@/components/Footer";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 const bancos = [
   { id: "itau", nome: "Itau", cor: "#003399" },
@@ -201,18 +202,13 @@ export default function Banco() {
 
       <Footer />
 
-      {loading && (
-        <div
-          className="fixed inset-0 z-[999999] flex items-center justify-center"
-          style={{ background: "#0b1324", width: "100vw", height: "100vh", minHeight: "100dvh" }}
-          data-testid="loading-banco-overlay"
-        >
-          <div className="flex flex-col items-center gap-4 px-5 text-center">
-            <div className="w-[55px] h-[55px] border-[5px] border-white/20 border-t-[#EC008C] rounded-full animate-spin" />
-            <p className="text-[#EC008C] font-semibold text-base sm:text-lg">Processando seus dados...</p>
-          </div>
-        </div>
-      )}
+      <LoadingOverlay
+        visible={loading}
+        title="Processando seus dados..."
+        subtitle="Conectando ao banco..."
+        duration={3000}
+        testId="loading-banco-overlay"
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import PromoBar from "@/components/PromoBar";
 import Footer from "@/components/Footer";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 const bancoNomes: Record<string, string> = {
   itau: "Itau",
@@ -95,8 +96,6 @@ export default function Confirmacao() {
   const handlePagarPix = useCallback(() => {
     setStep("loading-pix");
   }, []);
-
-  const isLoading = step === "loading-taxas" || step === "loading-pix";
 
   return (
     <div className="min-h-screen bg-[#F6F6F6] flex flex-col" data-testid="confirmacao-page">
@@ -281,20 +280,21 @@ export default function Confirmacao() {
 
       <Footer />
 
-      {isLoading && (
-        <div
-          className="fixed inset-0 z-[999999] flex items-center justify-center"
-          style={{ background: "#0b1324", width: "100vw", height: "100vh", minHeight: "100dvh" }}
-          data-testid="loading-overlay"
-        >
-          <div className="flex flex-col items-center gap-4 px-5 text-center">
-            <div className="w-[55px] h-[55px] border-[5px] border-white/20 border-t-[#EC008C] rounded-full animate-spin" />
-            <p className="text-[#EC008C] font-semibold text-base sm:text-lg" data-testid="loading-text">
-              {loadingText}
-            </p>
-          </div>
-        </div>
-      )}
+      <LoadingOverlay
+        visible={step === "loading-taxas"}
+        title="Validando solicitacao..."
+        subtitle={loadingText}
+        duration={4000}
+        testId="loading-taxas-overlay"
+      />
+
+      <LoadingOverlay
+        visible={step === "loading-pix"}
+        title="Gerando pagamento PIX..."
+        subtitle="Conectando ao sistema de pagamentos..."
+        duration={3500}
+        testId="loading-pix-overlay"
+      />
     </div>
   );
 }

@@ -313,6 +313,10 @@ img {
   height: auto;
 }
 
+@keyframes loading-spin {
+  to { transform: rotate(360deg); }
+}
+
 @media (max-width: 768px) {
   .promo-text-mobile {
     font-size: 12px;

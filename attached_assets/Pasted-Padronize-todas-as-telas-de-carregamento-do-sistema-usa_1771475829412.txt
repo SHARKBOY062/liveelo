@@ -1,0 +1,167 @@
+Padronize todas as telas de carregamento do sistema usando o modelo com fundo rosa, spinner central, texto e barra de progresso.
+
+🎯 OBJETIVO
+
+Todo loading deve ter:
+
+✔️ Fundo rosa Livelo
+✔️ Spinner branco
+✔️ Texto central
+✔️ Barra animada
+✔️ Porcentagem real
+✔️ Mobile perfeito
+
+🧩 1️⃣ HTML DO LOADING PREMIUM
+
+Use este padrão:
+
+<div id="loadingFull" class="loading-app">
+
+  <div class="loading-box">
+
+    <div class="spinner-app"></div>
+
+    <h3 id="loadingTitle">
+      Consultando pontos no sistema Livelo...
+    </h3>
+
+    <p id="loadingSub">
+      Conectando ao sistema Livelo...
+    </p>
+
+    <div class="progress-bar">
+      <div id="progressFill"></div>
+    </div>
+
+    <span id="progressText">0%</span>
+
+  </div>
+
+</div>
+
+🎨 2️⃣ CSS (IGUAL AO PRINT)
+.loading-app {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #EC008C, #D10078);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+}
+
+.loading-box {
+  width: 85%;
+  max-width: 350px;
+  text-align: center;
+  color: #fff;
+}
+
+.spinner-app {
+  width: 55px;
+  height: 55px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  animation: spin 1s linear infinite;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 15px 0 5px;
+}
+
+#progressFill {
+  width: 0%;
+  height: 100%;
+  background: #fff;
+  transition: width .3s;
+}
+
+#progressText {
+  font-size: 13px;
+  opacity: .9;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+⚙️ 3️⃣ JAVASCRIPT COM PROGRESSO REAL
+function mostrarLoadingApp(titulo, subtitulo, tempo = 4000) {
+
+  document.getElementById("loadingTitle").innerText = titulo;
+  document.getElementById("loadingSub").innerText = subtitulo;
+
+  const box = document.getElementById("loadingFull");
+  const bar = document.getElementById("progressFill");
+  const txt = document.getElementById("progressText");
+
+  box.style.display = "flex";
+
+  document.body.style.overflow = "hidden";
+
+  let progresso = 0;
+
+  const intervalo = setInterval(() => {
+
+    progresso += 1;
+
+    bar.style.width = progresso + "%";
+    txt.innerText = progresso + "%";
+
+    if (progresso >= 100) {
+      clearInterval(intervalo);
+      esconderLoadingApp();
+    }
+
+  }, tempo / 100);
+}
+
+function esconderLoadingApp() {
+
+  document.getElementById("loadingFull").style.display = "none";
+
+  document.body.style.overflow = "auto";
+
+  document.getElementById("progressFill").style.width = "0%";
+  document.getElementById("progressText").innerText = "0%";
+}
+
+🧩 4️⃣ COMO USAR NO FLUXO
+Exemplo: consultar CPF
+mostrarLoadingApp(
+  "Consultando pontos no sistema Livelo...",
+  "Conectando ao sistema Livelo...",
+  5000
+);
+
+Exemplo: solicitar saque
+mostrarLoadingApp(
+  "Validando solicitação...",
+  "Conectando ao banco...",
+  4000
+);
+
+📱 5️⃣ MOBILE FIX (IMPORTANTE)
+
+Evita corte no celular:
+
+.loading-app {
+  min-height: 100dvh;
+}
+
+✅ RESULTADO FINAL
+
+Depois disso:
+
+📱 Mobile perfeito
+💎 Visual de app
+🔥 Mais confiança
+🚀 Mais conversão
+🧠 Parece sistema real
