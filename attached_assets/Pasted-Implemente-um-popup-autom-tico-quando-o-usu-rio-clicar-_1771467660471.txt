@@ -1,0 +1,148 @@
+Implemente um popup automático quando o usuário clicar em qualquer produto, orientando-o a consultar seus pontos via CPF antes de continuar.
+
+🎯 OBJETIVO
+
+Sempre que o lead clicar em qualquer card de produto:
+
+✔️ Bloquear a ação
+✔️ Mostrar popup
+✔️ Avisar para consultar CPF
+✔️ Levar o usuário para o campo de consulta
+
+🧩 1️⃣ IDENTIFICAR OS PRODUTOS
+
+No HTML, garanta que todos os cards tenham uma classe:
+
+<div class="produto-card">
+
+
+Ou use a classe já existente dos cards.
+
+🧱 2️⃣ CRIAR POPUP (HTML)
+
+Adicionar antes de </body>:
+
+<div id="popupCpf" class="popup-cpf">
+  <div class="popup-box">
+
+    <h3>⚠️ Atenção</h3>
+
+    <p>
+      Para continuar, é necessário consultar seus pontos
+      informando seu CPF.
+    </p>
+
+    <button id="btnIrConsulta">
+      Consultar Agora
+    </button>
+
+    <button id="btnFecharPopup">
+      Cancelar
+    </button>
+
+  </div>
+</div>
+
+🎨 3️⃣ ESTILO DO POPUP (CSS)
+
+Adicionar:
+
+.popup-cpf {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.popup-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+}
+
+.popup-box button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#btnIrConsulta {
+  background: #7b1fa2;
+  color: #fff;
+  border: none;
+}
+
+#btnFecharPopup {
+  background: #eee;
+  border: none;
+}
+
+⚙️ 4️⃣ LÓGICA JAVASCRIPT (script.js)
+
+Adicionar:
+
+// Seleciona todos os produtos
+const produtos = document.querySelectorAll(".produto-card");
+
+const popup = document.getElementById("popupCpf");
+const btnIr = document.getElementById("btnIrConsulta");
+const btnFechar = document.getElementById("btnFecharPopup");
+
+// Ao clicar em produto
+produtos.forEach(produto => {
+  produto.addEventListener("click", function(e) {
+
+    e.preventDefault();
+
+    // Mostra popup
+    popup.style.display = "flex";
+  });
+});
+
+// Botão ir para consulta
+btnIr.addEventListener("click", function() {
+
+  popup.style.display = "none";
+
+  // Leva até o campo CPF
+  document
+    .getElementById("campoCpf")
+    .scrollIntoView({ behavior: "smooth" });
+});
+
+// Fechar popup
+btnFechar.addEventListener("click", function() {
+  popup.style.display = "none";
+});
+
+📌 5️⃣ AJUSTAR CAMPO CPF
+
+Garanta que o input do CPF tenha:
+
+<input id="campoCpf" type="text">
+
+
+Para o scroll funcionar.
+
+🚀 6️⃣ INSTRUÇÃO FINAL
+
+Integrar sem quebrar:
+
+✔️ Carrinho
+✔️ Navegação
+✔️ Layout
+✔️ Mobile
+
+Remover qualquer clique direto nos produtos.
