@@ -4,7 +4,6 @@ import SecurityBanner from "@/components/SecurityBanner";
 import HeroBanner from "@/components/HeroBanner";
 import CpfConsulta from "@/components/CpfConsulta";
 import ProductsCarousel from "@/components/ProductsCarousel";
-import AppDownload from "@/components/AppDownload";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -16,7 +15,6 @@ export default function Home() {
       <HeroBanner />
       <CpfConsulta />
       <ProductsCarousel />
-      <AppDownload />
       <Footer />
     </div>
   );
