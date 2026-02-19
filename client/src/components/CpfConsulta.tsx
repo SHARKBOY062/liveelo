@@ -104,13 +104,19 @@ export default function CpfConsulta() {
         className="consulta-abaixo-banner relative z-10 flex justify-center px-4 -mt-10 sm:-mt-10 mb-8"
         data-testid="cpf-consulta-section"
       >
-        <div className="w-[95%] max-w-[620px] bg-white rounded-md shadow-xl p-8 sm:p-10">
+        <div className="w-[95%] max-w-[620px] bg-gradient-to-br from-[#7B2D8E] to-[#9B3FB0] rounded-md shadow-xl p-8 sm:p-10 relative overflow-hidden">
+          <div className="absolute top-4 right-4 opacity-15">
+            <img src="/images/livelo-logo.jpg" alt="" className="h-10 w-auto brightness-200 contrast-0 invert" />
+          </div>
+          <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/5" />
+          <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/5" />
           {(phase === "form" || phase === "loading") && (
-            <div data-testid="cpf-form">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 text-center">
+            <div data-testid="cpf-form" className="relative z-10">
+              <img src="/images/livelo-logo.jpg" alt="Livelo" className="h-8 w-auto mx-auto mb-4 brightness-200 contrast-0 invert" data-testid="img-cpf-logo" />
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 text-center">
                 Consulte seus pontos agora
               </h3>
-              <p className="text-gray-500 text-sm sm:text-base mb-6 text-center">
+              <p className="text-white/70 text-sm sm:text-base mb-6 text-center">
                 Digite seu CPF e veja se possui saldo disponivel
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
@@ -122,7 +128,7 @@ export default function CpfConsulta() {
                   placeholder="000.000.000-00"
                   maxLength={14}
                   disabled={isLoading}
-                  className="flex-1 min-h-10 text-gray-900 border-gray-300 focus-visible:ring-[#7B2D8E]/30"
+                  className="flex-1 min-h-10 bg-white/95 text-gray-900 border-white/30 focus-visible:ring-white/30 placeholder:text-gray-400"
                   data-testid="input-cpf"
                 />
                 <Button
@@ -136,7 +142,7 @@ export default function CpfConsulta() {
                   Consultar Pontos
                 </Button>
               </div>
-              <p className="text-gray-400 text-xs mt-4 text-center">
+              <p className="text-white/40 text-xs mt-4 text-center">
                 Seus dados estao protegidos conforme a LGPD
               </p>
             </div>
