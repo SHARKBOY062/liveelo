@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
@@ -49,6 +50,7 @@ const loadingMessages = [
 ];
 
 export default function CpfConsulta() {
+  const [, setLocation] = useLocation();
   const [cpf, setCpf] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
   const [progress, setProgress] = useState(0);
@@ -181,6 +183,7 @@ export default function CpfConsulta() {
                     </p>
                   </div>
                   <Button
+                    onClick={() => setLocation("/resgate")}
                     className="w-full bg-[#E0007A] border-[#E0007A] text-white font-semibold rounded-full mb-3"
                     data-testid="button-negociar"
                   >
