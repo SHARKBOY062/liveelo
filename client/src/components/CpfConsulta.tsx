@@ -100,6 +100,16 @@ export default function CpfConsulta() {
     setPhase("loading");
   }, [cpf]);
 
+  const [resgateLoading, setResgateLoading] = useState(false);
+
+  const handleResgate = useCallback(() => {
+    setResgateLoading(true);
+    setTimeout(() => {
+      setResgateLoading(false);
+      setLocation("/resgate");
+    }, 4000);
+  }, [setLocation]);
+
   const handleReset = useCallback(() => {
     setCpf("");
     setPhase("form");
@@ -183,7 +193,7 @@ export default function CpfConsulta() {
                     </p>
                   </div>
                   <Button
-                    onClick={() => setLocation("/resgate")}
+                    onClick={handleResgate}
                     className="w-full bg-[#E0007A] border-[#E0007A] text-white font-semibold rounded-full mb-3"
                     data-testid="button-negociar"
                   >
@@ -268,6 +278,18 @@ export default function CpfConsulta() {
             <p className="text-white/50 text-xs" data-testid="text-loading-percent">
               {Math.round(progress)}%
             </p>
+          </div>
+        </div>
+      )}
+
+      {resgateLoading && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/95"
+          data-testid="loading-resgate-overlay"
+        >
+          <div className="text-center">
+            <div className="w-12 h-12 border-[5px] border-gray-200 border-t-[#EC008C] rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-[#EC008C] font-semibold text-base">Validando seus pontos...</p>
           </div>
         </div>
       )}
