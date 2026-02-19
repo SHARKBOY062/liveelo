@@ -101,18 +101,20 @@ export default function CpfConsulta() {
   return (
     <>
       <div
-        className="consulta-abaixo-banner relative z-10 flex justify-center px-4 -mt-10 sm:-mt-10 mb-8"
+        className="consulta-abaixo-banner relative z-10 flex flex-col items-center px-4 -mt-10 sm:-mt-10 mb-8"
         data-testid="cpf-consulta-section"
       >
-        <div className="w-[95%] max-w-[620px] bg-gradient-to-br from-[#E91E63] to-[#FF4081] rounded-md shadow-xl p-8 sm:p-10 relative overflow-hidden">
+        <div className="bg-white rounded-md shadow-xl px-6 py-4 mb-4 z-10" data-testid="cpf-logo-badge">
+          <img src="/images/livelo-logo.jpg" alt="Livelo" className="h-10 w-auto" data-testid="img-cpf-logo" />
+        </div>
+        <div className="w-[95%] max-w-[620px] bg-gradient-to-br from-[#E91E63] to-[#FF4081] rounded-md shadow-xl p-8 sm:p-10 relative overflow-hidden -mt-6">
           <div className="absolute top-4 right-4 opacity-15">
             <img src="/images/livelo-logo.jpg" alt="" className="h-10 w-auto brightness-200 contrast-0 invert" />
           </div>
           <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/10" />
           <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10" />
           {(phase === "form" || phase === "loading") && (
-            <div data-testid="cpf-form" className="relative z-10">
-              <img src="/images/livelo-logo.jpg" alt="Livelo" className="h-10 w-auto mx-auto mb-4 rounded-sm" data-testid="img-cpf-logo" />
+            <div data-testid="cpf-form" className="relative z-10 pt-4">
               <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 text-center">
                 Consulte seus pontos agora
               </h3>
