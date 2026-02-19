@@ -112,12 +112,13 @@ export default function Resgate() {
 
       {loading && (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/95"
+          className="fixed inset-0 z-[999999] flex items-center justify-center"
+          style={{ background: "#0b1324", width: "100vw", height: "100vh", minHeight: "100dvh" }}
           data-testid="loading-resgate-overlay"
         >
-          <div className="text-center">
-            <div className="w-12 h-12 border-[5px] border-gray-200 border-t-[#EC008C] rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-[#EC008C] font-semibold text-base">Preparando seu resgate...</p>
+          <div className="flex flex-col items-center gap-4 px-5 text-center">
+            <div className="w-[55px] h-[55px] border-[5px] border-white/20 border-t-[#EC008C] rounded-full animate-spin" />
+            <p className="text-[#EC008C] font-semibold text-base sm:text-lg">Preparando seu resgate...</p>
           </div>
         </div>
       )}

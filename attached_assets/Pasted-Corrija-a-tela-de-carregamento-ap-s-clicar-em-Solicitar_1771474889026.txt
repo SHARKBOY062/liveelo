@@ -1,0 +1,212 @@
+Corrija a tela de carregamento após clicar em “Solicitar Saque” para que ela ocupe 100% da tela, fique centralizada e não herde o layout do site.
+
+🎯 OBJETIVO
+
+Quando abrir o loading:
+
+✔️ Cobrir toda a tela
+✔️ Não mostrar menu, footer ou fundo
+✔️ Centralizar spinner e texto
+✔️ Funcionar perfeito no mobile
+✔️ Não quebrar o layout
+
+🧩 1️⃣ SUBSTITUIR O HTML DO LOADING
+
+Apague o loading antigo e use este:
+
+<div id="loadingFull" class="loading-fullscreen">
+  <div class="loading-container">
+
+    <div class="spinner"></div>
+
+    <p id="loadingMsg">Conectando ao banco de dados...</p>
+
+  </div>
+</div>
+
+🎨 2️⃣ SUBSTITUIR TODO CSS DO LOADING
+
+No style.css, apague os estilos antigos de loading e cole:
+
+/* LOADING TELA CHEIA */
+.loading-fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+
+  background: #0b1324;
+
+  display: none;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 999999;
+}
+
+/* Caixa central */
+.loading-container {
+  text-align: center;
+  color: #EC008C;
+  font-weight: 600;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Spinner */
+.loading-container .spinner {
+  width: 55px;
+  height: 55px;
+
+  border: 5px solid rgba(255,255,255,0.2);
+  border-top: 5px solid #EC008C;
+
+  border-radius: 50%;
+
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+
+  .loading-container {
+    padding: 20px;
+  }
+
+  .loading-container p {
+    font-size: 15px;
+  }
+
+}
+
+⚙️ 3️⃣ CORRIGIR JAVASCRIPT DO LOADING
+
+No script.js, substitua o código do loading por este:
+
+function mostrarLoading(texto) {
+
+  const loading = document.getElementById("loadingFull");
+  const msg = document.getElementById("loadingMsg");
+
+  msg.innerText = texto;
+
+  loading.style.display = "flex";
+
+  // Bloqueia scroll
+  document.body.style.overflow = "hidden";
+}
+
+function esconderLoading() {
+
+  const loading = document.getElementById("loadingFull");
+
+  loading.style.display = "none";
+
+  // Libera scroll
+  document.body.style.overflow = "auto";
+}
+
+🧩 4️⃣ USAR O LOADING NO BOTÃO “SOLICITAR SAQUE”
+
+Substitua o código do botão por:
+
+document.getElementById("btnSolicitarSaque").addEventListener("click", function() {
+
+  const mensagens = [
+    "Conectando ao banco de dados...",
+    "Validando informações...",
+    "Processando solicitação...",
+    "Verificando saldo..."
+  ];
+
+  let i = 0;
+
+  mostrarLoading(mensagens[i]);
+
+  const troca = setInterval(() => {
+
+    i++;
+
+    if (i < mensagens.length) {
+      document.getElementById("loadingMsg").innerText = mensagens[i];
+    }
+
+  }, 1000);
+
+  setTimeout(() => {
+
+    clearInterval(troca);
+
+    esconderLoading();
+
+    mostrarTelaTaxas();
+
+  }, 4000);
+
+});
+
+🧩 5️⃣ ESCONDER TODO CONTEÚDO ATRÁS (IMPORTANTE)
+
+No CSS, adicione:
+
+body.loading-ativo main,
+body.loading-ativo header,
+body.loading-ativo footer {
+  display: none;
+}
+
+
+E no JS ajuste:
+
+function mostrarLoading(texto) {
+
+  document.body.classList.add("loading-ativo");
+
+  const loading = document.getElementById("loadingFull");
+  const msg = document.getElementById("loadingMsg");
+
+  msg.innerText = texto;
+
+  loading.style.display = "flex";
+
+  document.body.style.overflow = "hidden";
+}
+
+function esconderLoading() {
+
+  document.body.classList.remove("loading-ativo");
+
+  const loading = document.getElementById("loadingFull");
+
+  loading.style.display = "none";
+
+  document.body.style.overflow = "auto";
+}
+
+📱 6️⃣ CORREÇÃO EXTRA PARA MOBILE SAFARI / CHROME
+
+Evita bug de altura no celular:
+
+.loading-fullscreen {
+  min-height: 100dvh;
+}
+
+✅ RESULTADO FINAL
+
+Depois disso:
+
+✔️ Loading ocupa tela inteira
+✔️ Não aparece footer atrás
+✔️ Não quebra no mobile
+✔️ Centralizado
+✔️ Profissional
+✔️ Sem bug
