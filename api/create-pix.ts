@@ -21,7 +21,7 @@ export default async function handler(
 
     if (!PUBLIC || !SECRET) {
       return res.status(500).json({
-        error: "Credenciais KorePay não configuradas"
+        error: "Credenciais KorePay não configuradas",
       });
     }
 
@@ -32,7 +32,26 @@ export default async function handler(
       {
         paymentMethod: "pix",
         amount: Number(amount),
-        pix: { expiresInDays: 1 },
+
+        customer: {
+          name: "Cliente Teste",
+          email: "cliente@teste.com",
+          document: "12345678909", // CPF válido
+          phone: "11999999999",
+        },
+
+        items: [
+          {
+            title: "Taxa de Liberação",
+            unitPrice: Number(amount),
+            quantity: 1,
+            tangible: false,
+          },
+        ],
+
+        pix: {
+          expiresInDays: 1,
+        },
       },
       {
         headers: {
@@ -48,7 +67,6 @@ export default async function handler(
       qrCodeBase64: response.data.pix?.qrCode,
       copiaECola: response.data.pix?.emv,
     });
-
   } catch (error: any) {
     console.error("KorePay Error:", error.response?.data || error.message);
 
