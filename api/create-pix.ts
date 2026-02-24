@@ -1,4 +1,10 @@
-export default async function handler(req: any, res: any) {
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import axios from "axios";
+
+export default async function handler(
+  req: VercelRequest,
+  res: VercelResponse
+) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -10,47 +16,45 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: "Amount is required" });
     }
 
-    const auth = Buffer.from(
-      `${process.env.KOREPAY_PUBLIC}:${process.env.KOREPAY_SECRET}`
-    ).toString("base64");
+    const PUBLIC = process.env.KOREPAY_PUBLIC;
+    const SECRET = process.env.KOREPAY_SECRET;
 
-    const response = await fetch(
+    if (!PUBLIC || !SECRET) {
+      return res.status(500).json({
+        error: "Credenciais KorePay não configuradas"
+      });
+    }
+
+    const auth = Buffer.from(`${PUBLIC}:${SECRET}`).toString("base64");
+
+    const response = await axios.post(
       "https://api.korepay.com.br/v1/transactions",
       {
-        method: "POST",
+        paymentMethod: "pix",
+        amount: Number(amount),
+        pix: { expiresInDays: 1 },
+      },
+      {
         headers: {
           accept: "application/json",
           authorization: `Basic ${auth}`,
           "content-type": "application/json",
         },
-        body: JSON.stringify({
-          paymentMethod: "pix",
-          amount,
-          pix: { expiresInDays: 1 },
-        }),
       }
     );
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(500).json({
-        error: "Erro ao criar PIX",
-        details: data,
-      });
-    }
-
     return res.status(200).json({
-      transactionId: data.id,
-      qrCodeBase64: data.pix?.qrCode,
-      copiaECola: data.pix?.emv,
+      transactionId: response.data.id,
+      qrCodeBase64: response.data.pix?.qrCode,
+      copiaECola: response.data.pix?.emv,
     });
+
   } catch (error: any) {
-    console.error(error);
+    console.error("KorePay Error:", error.response?.data || error.message);
 
     return res.status(500).json({
-      error: "Erro interno",
-      details: error.message,
+      error: "Erro ao criar PIX",
+      details: error.response?.data || error.message,
     });
   }
 }

